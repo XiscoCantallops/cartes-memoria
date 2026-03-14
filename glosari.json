@@ -1,0 +1,364 @@
+{
+  "glosari": [
+    {
+      "id": 1,
+      "terme": "si escau",
+      "definicio": "Locució que vol dir 'si és procedent' o 'si correspon'.",
+      "exemple": "Cal aportar, si escau, la documentació justificativa."
+    },
+    {
+      "id": 2,
+      "terme": "constrenyiment",
+      "definicio": "Procediment executiu o via forçosa per exigir el compliment d'una obligació.",
+      "exemple": "El deute es cobrarà per via de constrenyiment."
+    },
+    {
+      "id": 3,
+      "terme": "vistiplau",
+      "definicio": "Conformitat o aprovació formal.",
+      "exemple": "L'informe du el vistiplau de la cap del servei."
+    },
+    {
+      "id": 4,
+      "terme": "expedir",
+      "definicio": "Despatxar o emetre oficialment un document.",
+      "exemple": "L'òrgan competent pot expedir el certificat sol·licitat."
+    },
+    {
+      "id": 5,
+      "terme": "plet",
+      "definicio": "Litigi o contesa judicial entre parts.",
+      "exemple": "El plet continua pendent de resolució judicial."
+    },
+    {
+      "id": 6,
+      "terme": "meritar",
+      "definicio": "Tenir dret a una retribució per raó d'un treball o servei.",
+      "exemple": "Les dietes es meriten el dia en què es fa el desplaçament."
+    },
+    {
+      "id": 7,
+      "terme": "esmenar",
+      "definicio": "Corregir un defecte o error.",
+      "exemple": "La persona interessada disposa de deu dies per esmenar la sol·licitud."
+    },
+    {
+      "id": 8,
+      "terme": "escorcollar",
+      "definicio": "Examinar minuciosament alguna cosa.",
+      "exemple": "La policia va escorcollar el vehicle amb autorització judicial."
+    },
+    {
+      "id": 9,
+      "terme": "base imposable",
+      "definicio": "Import o base sobre la qual recau un impost o tribut.",
+      "exemple": "L'impost es calcula sobre la base imposable."
+    },
+    {
+      "id": 10,
+      "terme": "autenticar",
+      "definicio": "Legalitzar un acte o donar autenticitat a un document.",
+      "exemple": "El secretari pot autenticar la còpia del document."
+    },
+    {
+      "id": 11,
+      "terme": "prenedor",
+      "definicio": "Persona que pren un contracte d'adhesió, especialment una assegurança.",
+      "exemple": "El prenedor de l'assegurança ha de comunicar el sinistre."
+    },
+    {
+      "id": 12,
+      "terme": "període de carència",
+      "definicio": "Període mínim de cotització o contribució necessari per tenir dret a una prestació.",
+      "exemple": "No compleix el període de carència exigit per obtenir la prestació."
+    },
+    {
+      "id": 13,
+      "terme": "servitud de pas",
+      "definicio": "Dret de pas constituït a favor d'una finca sense accés directe a un camí públic.",
+      "exemple": "La finca gaudeix d'una servitud de pas sobre el terreny veí."
+    },
+    {
+      "id": 14,
+      "terme": "atendre",
+      "definicio": "Tenir en compte, considerar o satisfer una quantitat deguda.",
+      "exemple": "Cal atendre les al·legacions presentades dins el termini."
+    },
+    {
+      "id": 15,
+      "terme": "desplegar",
+      "definicio": "Dictar les disposicions necessàries per aplicar una llei.",
+      "exemple": "El Govern ha de desplegar aquesta llei mitjançant un reglament."
+    },
+    {
+      "id": 16,
+      "terme": "quòrum",
+      "definicio": "Nombre mínim de membres necessari per prendre acords vàlidament.",
+      "exemple": "No es pot iniciar la sessió perquè no hi ha quòrum."
+    },
+    {
+      "id": 17,
+      "terme": "quitança",
+      "definicio": "Document que acredita el pagament o liquidació d'un deute.",
+      "exemple": "El treballador va signar la quitança en finalitzar el contracte."
+    },
+    {
+      "id": 18,
+      "terme": "interposició",
+      "definicio": "Acció de presentar o formalitzar un recurs.",
+      "exemple": "La interposició del recurs suspèn el termini d'execució."
+    },
+    {
+      "id": 19,
+      "terme": "recurs d'alçada",
+      "definicio": "Recurs administratiu contra una resolució dictada per un òrgan inferior.",
+      "exemple": "Contra aquesta resolució es pot interposar recurs d'alçada."
+    },
+    {
+      "id": 20,
+      "terme": "liquiditat",
+      "definicio": "Facilitat de convertir un actiu en diners.",
+      "exemple": "L'empresa necessita liquiditat per afrontar els pagaments immediats."
+    },
+    {
+      "id": 21,
+      "terme": "nomenament",
+      "definicio": "Designació d'una persona per ocupar un càrrec o una funció.",
+      "exemple": "El nomenament es publicarà en el butlletí oficial."
+    },
+    {
+      "id": 22,
+      "terme": "compulsar",
+      "definicio": "Acreditar oficialment que una còpia coincideix amb l'original.",
+      "exemple": "L'oficina pot compulsar la còpia del DNI."
+    },
+    {
+      "id": 23,
+      "terme": "a l'empara de",
+      "definicio": "Amb fonament o cobertura jurídica de.",
+      "exemple": "La resolució es dicta a l'empara de l'article 25 del reglament."
+    },
+    {
+      "id": 24,
+      "terme": "requisar",
+      "definicio": "Intervenir béns o posar-los a disposició de l'autoritat.",
+      "exemple": "La policia va requisar el material il·legal."
+    },
+    {
+      "id": 25,
+      "terme": "confiscar",
+      "definicio": "Privar algú dels seus béns per decisió legal o judicial.",
+      "exemple": "La sentència va ordenar confiscar els béns obtinguts fraudulentament."
+    },
+    {
+      "id": 26,
+      "terme": "plusvàlua",
+      "definicio": "Augment del valor d'una cosa per causes externes sense millora incorporada.",
+      "exemple": "La venda del solar ha generat una plusvàlua important."
+    },
+    {
+      "id": 27,
+      "terme": "mediana",
+      "definicio": "Dada situada al centre d'un conjunt ordenat de valors.",
+      "exemple": "La mediana dels resultats és de quinze punts."
+    },
+    {
+      "id": 28,
+      "terme": "mitjana",
+      "definicio": "Quocient de la suma de valors d'un conjunt dividida pel nombre d'elements.",
+      "exemple": "La mitjana dels resultats supera la prevista."
+    },
+    {
+      "id": 29,
+      "terme": "mida",
+      "definicio": "Mesura, especialment lineal.",
+      "exemple": "La mida mínima exigida és de dos metres."
+    },
+    {
+      "id": 30,
+      "terme": "mesura",
+      "definicio": "Mitjà proporcionat a un fi.",
+      "exemple": "La mesura adoptada és adequada a la finalitat perseguida."
+    },
+    {
+      "id": 31,
+      "terme": "recàrrec",
+      "definicio": "Quantitat afegida a una altra, especialment per penalització o increment legal.",
+      "exemple": "El pagament fora de termini comporta un recàrrec."
+    },
+    {
+      "id": 32,
+      "terme": "rescabalament",
+      "definicio": "Acció de reparar o compensar una pèrdua o un dany.",
+      "exemple": "La persona afectada té dret al rescabalament dels perjudicis soferts."
+    },
+    {
+      "id": 33,
+      "terme": "rendible",
+      "definicio": "Que produeix benefici econòmic o un bon rendiment.",
+      "exemple": "La inversió és rendible a mitjà termini."
+    },
+    {
+      "id": 34,
+      "terme": "rentable",
+      "definicio": "Que es pot rentar.",
+      "exemple": "Aquesta peça és rentable a màquina."
+    },
+    {
+      "id": 35,
+      "terme": "interlocutòria",
+      "definicio": "Resolució judicial sobre una qüestió incidental o processal.",
+      "exemple": "El jutge va dictar una interlocutòria abans de la sentència."
+    },
+    {
+      "id": 36,
+      "terme": "assentament",
+      "definicio": "Anotació o inscripció feta en un registre.",
+      "exemple": "L'assentament registral ja consta al llibre oficial."
+    },
+    {
+      "id": 37,
+      "terme": "citació",
+      "definicio": "Acte o document pel qual es convoca formalment una persona perquè comparegui.",
+      "exemple": "La citació s'ha notificat correctament a la part interessada."
+    },
+    {
+      "id": 38,
+      "terme": "rúbrica",
+      "definicio": "Traç o signe abreujat que acompanya la signatura.",
+      "exemple": "El document du la rúbrica del secretari."
+    },
+    {
+      "id": 39,
+      "terme": "tramesa",
+      "definicio": "Enviament d'un document a una destinació concreta.",
+      "exemple": "La tramesa de l'expedient s'ha fet per via electrònica."
+    },
+    {
+      "id": 40,
+      "terme": "validació",
+      "definicio": "Verificació que dona validesa formal a una actuació o document.",
+      "exemple": "La validació de la documentació és prèvia a la resolució."
+    },
+    {
+      "id": 41,
+      "terme": "valisa",
+      "definicio": "Sac o cartera tancada on es transporta documentació o correspondència.",
+      "exemple": "Els documents interns s'envien per valisa."
+    },
+    {
+      "id": 42,
+      "terme": "violació de domicili",
+      "definicio": "Delicte consistent a entrar en un domicili sense autorització o romandre-hi contra la voluntat del titular.",
+      "exemple": "Els fets podrien constituir violació de domicili."
+    },
+    {
+      "id": 43,
+      "terme": "embargar",
+      "definicio": "Retenir un bé per ordre d'una autoritat judicial.",
+      "exemple": "El jutjat va acordar embargar el compte corrent."
+    },
+    {
+      "id": 44,
+      "terme": "emetre",
+      "definicio": "Expressar o manifestar un informe, una opinió o un vot.",
+      "exemple": "L'òrgan competent ha d'emetre informe previ."
+    },
+    {
+      "id": 45,
+      "terme": "aixecar",
+      "definicio": "Considerar acabada una sessió d'un òrgan.",
+      "exemple": "La presidència va aixecar la sessió a les catorze hores."
+    },
+    {
+      "id": 46,
+      "terme": "al detall",
+      "definicio": "En quantitats petites; en venda minorista.",
+      "exemple": "L'establiment es dedica a la venda al detall."
+    },
+    {
+      "id": 47,
+      "terme": "demandar",
+      "definicio": "Demanar alguna cosa per via judicial.",
+      "exemple": "La part afectada va demandar l'empresa pels danys causats."
+    },
+    {
+      "id": 48,
+      "terme": "establir-se",
+      "definicio": "Fixar la residència en un lloc.",
+      "exemple": "La família es va establir al municipi l'any passat."
+    },
+    {
+      "id": 49,
+      "terme": "estendre",
+      "definicio": "Posar per escrit una acta o un document en la forma acostumada.",
+      "exemple": "El secretari va estendre l'acta de la reunió."
+    },
+    {
+      "id": 50,
+      "terme": "borsari",
+      "definicio": "Relatiu a la borsa o a les operacions que s'hi fan.",
+      "exemple": "L'informe analitza el comportament borsari de l'empresa."
+    },
+    {
+      "id": 51,
+      "terme": "bixest",
+      "definicio": "Dit de l'any que té 366 dies.",
+      "exemple": "El 2024 és un any bixest."
+    },
+    {
+      "id": 52,
+      "terme": "abintestat",
+      "definicio": "Sense testament.",
+      "exemple": "L'herència es tramitarà abintestat perquè no hi ha testament."
+    },
+    {
+      "id": 53,
+      "terme": "legatari",
+      "definicio": "Persona que rep un llegat.",
+      "exemple": "El legatari va acceptar el bé deixat en testament."
+    },
+    {
+      "id": 54,
+      "terme": "licitador",
+      "definicio": "Persona que ofereix un preu en una subhasta o licitació.",
+      "exemple": "El licitador millor valorat ha presentat l'oferta econòmica més avantatjosa."
+    },
+    {
+      "id": 55,
+      "terme": "oferent",
+      "definicio": "Persona que presenta una oferta en una licitació o subhasta.",
+      "exemple": "L'oferent ha d'acreditar la solvència econòmica."
+    },
+    {
+      "id": 56,
+      "terme": "pluriennal",
+      "definicio": "Que dura diversos anys.",
+      "exemple": "És un programa pluriennal finançat en quatre exercicis."
+    },
+    {
+      "id": 57,
+      "terme": "obertura",
+      "definicio": "Acció d'obrir o d'obrir-se; en administració, també en actes com l'obertura de pliques.",
+      "exemple": "L'obertura de pliques tindrà lloc en acte públic."
+    },
+    {
+      "id": 58,
+      "terme": "parentiu",
+      "definicio": "Vincle existent entre parents.",
+      "exemple": "Cal acreditar el parentiu amb la documentació corresponent."
+    },
+    {
+      "id": 59,
+      "terme": "preveure",
+      "definicio": "Veure o concebre per endavant allò que ha d'ocórrer.",
+      "exemple": "La norma preveu aquest supòsit excepcional."
+    },
+    {
+      "id": 60,
+      "terme": "pronunciar-se",
+      "definicio": "Declarar o manifestar una decisió.",
+      "exemple": "El tribunal es va pronunciar sobre la qüestió plantejada."
+    }
+  ]
+}

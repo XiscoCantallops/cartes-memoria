@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Cartes de Memòria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #e7e5e4;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      overflow: hidden;
+    }
+
+    .perspective {
+      perspective: 1400px;
+    }
+
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .card-flip {
+      transform: rotateY(180deg);
+    }
+
+    .card-animated {
+      transition:
+        transform 0.55s cubic-bezier(.22,1,.36,1),
+        opacity 0.25s ease,
+        filter 0.25s ease;
+      will-change: transform;
+    }
+
+    .card-enter {
+      animation: cardEnter 0.28s ease;
+    }
+
+    @keyframes cardEnter {
+      from {
+        opacity: 0.65;
+        transform: scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(10px);
+    }
+
+    .shadow-soft {
+      box-shadow:
+        0 10px 25px rgba(15, 23, 42, 0.08),
+        0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .btn-press {
+      transition: transform 0.14s ease, opacity 0.14s ease;
+    }
+
+    .btn-press:active {
+      transform: scale(0.98);
+    }
+
+    .term-text {
+      line-height: 1.05;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    .hide-scrollbar {
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="text-slate-800">
+  <div class="max-w-xl mx-auto h-[100dvh] p-3 sm:p-4 flex flex-col gap-3">
+    
+    <header class="glass shadow-soft rounded-2xl p-4">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Cartes de Memòria</h1>
+          <p class="text-sm text-slate-600 mt-1">Glosari interactiu per estudiar des del mòbil o navegador</p>
+        </div>
+        <div class="text-3xl" aria-hidden="true">📚</div>
+      </div>
+    </header>
+
+    <section class="glass shadow-soft rounded-2xl p-4">
+      <div class="grid grid-cols-2 gap-4 items-start">
+        <div>
+          <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progrés</p>
+          <p id="progressText" class="text-lg font-bold">0 apreses de 0</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Pendents</p>
+          <p id="remainingText" class="text-lg font-bold">0</p>
+        </div>
+      </div>
+
+      <div class="mt-3 h-3 bg-stone-200 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full rounded-full bg-emerald-500 transition-all duration-500 ease-out" style="width:0%"></div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button id="studyModeBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold">
+          Mode estudi: pendents
+        </button>
+        <button id="shuffleBtn" class="btn-press px-3 py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold">
+          Barrejar
+        </button>
+        <button id="resetProgressBtn" class="btn-press px-3 py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold">
+          Reiniciar progrés
+        </button>
+        <button id="resetOrderBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-200 text-slate-800 text-sm font-semibold">
+          Ordre original
+        </button>
+      </div>
+    </section>
+
+    <main class="flex-1 min-h-0">
+      <div class="h-full perspective">
+        <div id="card"
+             class="relative h-full w-full preserve-3d card-animated card-enter cursor-pointer select-none">
+          
+          <!-- Cara frontal -->
+          <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Terme</span>
+              <div class="flex items-center gap-2">
+                <button id="speakFrontBtn"
+                        class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
+                        title="Escoltar terme"
+                        aria-label="Escoltar terme">
+                  🔊
+                </button>
+                <button id="learnFrontBtn"
+                        class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
+                        title="Marcar com apresa"
+                        aria-label="Marcar com apresa">
+                  ✅
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center text-center py-4">
+              <p id="frontIndex" class="text-sm font-semibold text-slate-500 mb-4">Carta 0 de 0</p>
+              <h2 id="frontTerm" class="term-text font-extrabold text-slate-800 text-4xl sm:text-5xl">Carregant...</h2>
+              <p class="mt-6 text-sm text-slate-500">Toca la carta per veure la definició</p>
+            </div>
+          </section>
+
+          <!-- Cara trasera -->
+          <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col card-flip">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Definició</span>
+              <div class="flex items-center gap-2">
+                <button id="speakBackBtn"
+                        class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
+                        title="Escoltar terme"
+                        aria-label="Escoltar terme">
+                  🔊
+                </button>
+                <button id="learnBackBtn"
+                        class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
+                        title="Marcar com apresa"
+                        aria-label="Marcar com apresa">
+                  ✅
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-4 mb-3">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Terme</p>
+              <h3 id="backTerm" class="text-xl sm:text-2xl font-bold text-slate-800 mt-1">—</h3>
+            </div>
+
+            <div class="mb-4">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Definició</p>
+              <p id="definitionText" class="text-base sm:text-lg font-medium text-slate-800 mt-1 leading-relaxed">—</p>
+            </div>
+
+            <div class="mt-auto">
+              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Exemple</p>
+              <div class="mt-1 rounded-2xl border border-white/60 bg-white/50 p-3">
+                <p id="exampleText" class="italic text-slate-900 font-medium leading-relaxed">—</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="glass shadow-soft rounded-2xl p-3">
+      <div class="grid grid-cols-3 gap-2">
+        <button id="prevBtn" class="btn-press py-3 rounded-xl bg-sky-500 text-white font-semibold">
+          ← Anterior
+        </button>
+        <button id="flipBtn" class="btn-press py-3 rounded-xl bg-slate-700 text-white font-semibold">
+          Girar
+        </button>
+        <button id="nextBtn" class="btn-press py-3 rounded-xl bg-sky-700 text-white font-semibold">
+          Següent →
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "flashcards-glossary-progress-v2";
+    const ORDER_KEY = "flashcards-glossary-order-v2";
+
+    let data = [];
+    let state = {
+      currentIndex: 0,
+      flipped: false,
+      learnedIds: [],
+      studyMode: "pending" // "pending" | "all"
+    };
+
+    const card = document.getElementById("card");
+    const frontTerm = document.getElementById("frontTerm");
+    const backTerm = document.getElementById("backTerm");
+    const definitionText = document.getElementById("definitionText");
+    const exampleText = document.getElementById("exampleText");
+    const progressText = document.getElementById("progressText");
+    const remainingText = document.getElementById("remainingText");
+    const progressBar = document.getElementById("progressBar");
+    const frontIndex = document.getElementById("frontIndex");
+    const studyModeBtn = document.getElementById("studyModeBtn");
+
+    function normalizeEntry(item, index) {
+      return {
+        id: item.id ?? index + 1,
+        terme: String(item.terme ?? "").trim(),
+        definicio: String(item.definicio ?? "").trim(),
+        exemple: String(item.exemple ?? "").trim()
+      };
+    }
+
+    function saveProgress() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        learnedIds: state.learnedIds,
+        studyMode: state.studyMode
+      }));
+    }
+
+    function saveOrder() {
+      const ids = data.map(item => item.id);
+      localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
+    }
+
+    function loadSavedState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        state.learnedIds = Array.isArray(parsed.learnedIds) ? parsed.learnedIds : [];
+        state.studyMode = parsed.studyMode === "all" ? "all" : "pending";
+      } catch {
+        state.learnedIds = [];
+        state.studyMode = "pending";
+      }
+    }
+
+    function restoreOrderIfAvailable() {
+      try {
+        const raw = localStorage.getItem(ORDER_KEY);
+        if (!raw) return;
+        const savedIds = JSON.parse(raw);
+        if (!Array.isArray(savedIds) || savedIds.length !== data.length) return;
+
+        const map = new Map(data.map(item => [item.id, item]));
+        const reordered = savedIds.map(id => map.get(id)).filter(Boolean);
+
+        if (reordered.length === data.length) {
+          data = reordered;
+        }
+      } catch {
+        // no hacer nada
+      }
+    }
+
+    function getTotalTerms() {
+      return data.length;
+    }
+
+    function getActiveCards() {
+      if (state.studyMode === "all") return data;
+      return data.filter(item => !state.learnedIds.includes(item.id));
+    }
+
+    function clampIndex() {
+      const active = getActiveCards();
+      if (active.length === 0) {
+        state.currentIndex = 0;
+        return;
+      }
+      if (state.currentIndex >= active.length) state.currentIndex = active.length - 1;
+      if (state.currentIndex < 0) state.currentIndex = 0;
+    }
+
+    function triggerCardEntryAnimation() {
+      card.classList.remove("card-enter");
+      void card.offsetWidth;
+      card.classList.add("card-enter");
+    }
+
+    function updateStudyModeButton() {
+      if (state.studyMode === "pending") {
+        studyModeBtn.textContent = "Mode estudi: pendents";
+        studyModeBtn.className = "btn-press px-3 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold";
+      } else {
+        studyModeBtn.textContent = "Mode estudi: tots";
+        studyModeBtn.className = "btn-press px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold";
+      }
+    }
+
+    function updateProgressUI() {
+      const total = getTotalTerms();
+      const learned = state.learnedIds.filter(id => data.some(item => item.id === id)).length;
+      const pending = Math.max(total - learned, 0);
+      const percent = total > 0 ? (learned / total) * 100 : 0;
+
+      progressText.textContent = `${learned} apreses de ${total}`;
+      remainingText.textContent = pending;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    function renderEmptyState(messageTitle, messageBody) {
+      frontIndex.textContent = "Carta 0 de 0";
+      frontTerm.textContent = messageTitle;
+      backTerm.textContent = messageTitle;
+      definitionText.textContent = messageBody;
+      exampleText.textContent = "Pots reiniciar el progrés o canviar el mode d'estudi.";
+      card.classList.toggle("card-flip", state.flipped);
+      updateProgressUI();
+      updateStudyModeButton();
+    }
+
+    function render() {
+      updateProgressUI();
+      updateStudyModeButton();
+
+      if (!data.length) {
+        renderEmptyState("Carregant...", "S'està carregant el glosari.");
+        return;
+      }
+
+      const active = getActiveCards();
+      clampIndex();
+
+      if (!active.length) {
+        renderEmptyState("Enhorabona 🎉", "Ja has acabat tots els termes pendents.");
+        return;
+      }
+
+      const current = active[state.currentIndex];
+      const totalVisible = active.length;
+
+      frontIndex.textContent = `Carta ${state.currentIndex + 1} de ${totalVisible}`;
+      frontTerm.textContent = current.terme || "Sense terme";
+      backTerm.textContent = current.terme || "Sense terme";
+      definitionText.textContent = current.definicio || "Sense definició";
+      exampleText.textContent = current.exemple || "Sense exemple";
+
+      card.classList.toggle("card-flip", state.flipped);
+    }
+
+    function flipCard() {
+      const active = getActiveCards();
+      if (!active.length) return;
+      state.flipped = !state.flipped;
+      render();
+    }
+
+    function nextCard() {
+      const active = getActiveCards();
+      if (!active.length) return;
+      state.currentIndex = (state.currentIndex + 1) % active.length;
+      state.flipped = false;
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function prevCard() {
+      const active = getActiveCards();
+      if (!active.length) return;
+      state.currentIndex = (state.currentIndex - 1 + active.length) % active.length;
+      state.flipped = false;
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function markLearned() {
+      const active = getActiveCards();
+      if (!active.length) return;
+
+      const current = active[state.currentIndex];
+      if (!current) return;
+
+      if (!state.learnedIds.includes(current.id)) {
+        state.learnedIds.push(current.id);
+        saveProgress();
+      }
+
+      state.flipped = false;
+      clampIndex();
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function resetProgress() {
+      state.learnedIds = [];
+      state.currentIndex = 0;
+      state.flipped = false;
+      saveProgress();
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function shuffleCards() {
+      for (let i = data.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [data[i], data[j]] = [data[j], data[i]];
+      }
+      state.currentIndex = 0;
+      state.flipped = false;
+      saveOrder();
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function restoreOriginalOrder() {
+      data.sort((a, b) => a.id - b.id);
+      state.currentIndex = 0;
+      state.flipped = false;
+      saveOrder();
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function toggleStudyMode() {
+      state.studyMode = state.studyMode === "pending" ? "all" : "pending";
+      state.currentIndex = 0;
+      state.flipped = false;
+      saveProgress();
+      render();
+      triggerCardEntryAnimation();
+    }
+
+    function speakCurrentTerm() {
+      const active = getActiveCards();
+      if (!active.length) return;
+
+      const current = active[state.currentIndex];
+      if (!current?.terme || !("speechSynthesis" in window)) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(current.terme);
+      utterance.lang = "ca-ES";
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    async function loadGlossary() {
+      try {
+        const response = await fetch("./glosari.json", { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const json = await response.json();
+        if (!Array.isArray(json)) {
+          throw new Error("El fitxer glosari.json no conté un array.");
+        }
+
+        data = json.map(normalizeEntry).filter(item => item.terme);
+        data.sort((a, b) => a.id - b.id);
+
+        loadSavedState();
+        restoreOrderIfAvailable();
+
+        state.learnedIds = state.learnedIds.filter(id => data.some(item => item.id === id));
+
+        render();
+      } catch (error) {
+        frontIndex.textContent = "Error";
+        frontTerm.textContent = "No s'ha pogut carregar el glosari";
+        backTerm.textContent = "Error";
+        definitionText.textContent = "Revisa que glosari.json sigui a la mateixa carpeta que index.html i que GitHub Pages estigui publicat correctament.";
+        exampleText.textContent = String(error.message || error);
+        updateProgressUI();
+        updateStudyModeButton();
+      }
+    }
+
+    // Eventos
+    card.addEventListener("click", flipCard);
+    document.getElementById("flipBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      flipCard();
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      nextCard();
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      prevCard();
+    });
+
+    document.getElementById("learnFrontBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      markLearned();
+    });
+
+    document.getElementById("learnBackBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      markLearned();
+    });
+
+    document.getElementById("resetProgressBtn").addEventListener("click", () => {
+      resetProgress();
+    });
+
+    document.getElementById("shuffleBtn").addEventListener("click", () => {
+      shuffleCards();
+    });
+
+    document.getElementById("resetOrderBtn").addEventListener("click", () => {
+      restoreOriginalOrder();
+    });
+
+    document.getElementById("studyModeBtn").addEventListener("click", () => {
+      toggleStudyMode();
+    });
+
+    document.getElementById("speakFrontBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      speakCurrentTerm();
+    });
+
+    document.getElementById("speakBackBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      speakCurrentTerm();
+    });
+
+    // Gestos básicos móviles
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    card.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].clientX;
+    }, { passive: true });
+
+    card.addEventListener("touchend", (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      const diff = touchEndX - touchStartX;
+
+      if (Math.abs(diff) > 70) {
+        if (diff < 0) {
+          nextCard();
+        } else {
+          prevCard();
+        }
+      }
+    }, { passive: true });
+
+    // Teclado escritorio
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") nextCard();
+      if (e.key === "ArrowLeft") prevCard();
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        flipCard();
+      }
+    });
+
+    loadGlossary();
+  </script>
+</body>
+</html>
