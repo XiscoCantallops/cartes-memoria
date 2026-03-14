@@ -25,14 +25,8 @@
       overflow: hidden;
     }
 
-    .perspective {
-      perspective: 1400px;
-    }
-
-    .preserve-3d {
-      transform-style: preserve-3d;
-    }
-
+    .perspective { perspective: 1400px; }
+    .preserve-3d { transform-style: preserve-3d; }
     .backface-hidden {
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
@@ -46,31 +40,18 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .card-flip {
-      transform: rotateY(180deg);
-    }
+    .card-flip { transform: rotateY(180deg); }
 
     .card-animated {
-      transition:
-        transform 0.55s cubic-bezier(.22,1,.36,1),
-        opacity 0.25s ease,
-        filter 0.25s ease;
+      transition: transform 0.55s cubic-bezier(.22,1,.36,1), opacity 0.25s ease;
       will-change: transform;
     }
 
-    .card-enter {
-      animation: cardEnter 0.28s ease;
-    }
+    .card-enter { animation: cardEnter 0.28s ease; }
 
     @keyframes cardEnter {
-      from {
-        opacity: 0.65;
-        transform: scale(0.985);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0.65; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .glass {
@@ -88,36 +69,41 @@
       transition: transform 0.14s ease, opacity 0.14s ease;
     }
 
-    .btn-press:active {
-      transform: scale(0.98);
-    }
+    .btn-press:active { transform: scale(0.98); }
 
     .term-text {
       line-height: 1.05;
       word-break: break-word;
       overflow-wrap: anywhere;
     }
-
-    .hide-scrollbar::-webkit-scrollbar {
-      width: 0;
-      height: 0;
-    }
-
-    .hide-scrollbar {
-      scrollbar-width: none;
-    }
   </style>
 </head>
 <body class="text-slate-800">
   <div class="max-w-xl mx-auto h-[100dvh] p-3 sm:p-4 flex flex-col gap-3">
-    
+
     <header class="glass shadow-soft rounded-2xl p-4">
-      <div class="flex items-center justify-between gap-3">
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Cartes de Memòria</h1>
-          <p class="text-sm text-slate-600 mt-1">Glosari interactiu per estudiar des del mòbil o navegador</p>
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h1 id="appTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">
+            Cartes de Memòria
+          </h1>
+          <p id="datasetName" class="text-sm text-slate-600 mt-1 break-all">
+            glosari.json
+          </p>
         </div>
-        <div class="text-3xl" aria-hidden="true">📚</div>
+        <div class="text-3xl shrink-0" aria-hidden="true">📚</div>
+      </div>
+
+      <div class="mt-4">
+        <label for="datasetSelect" class="block text-[11px] uppercase tracking-[0.22em] text-slate-500 mb-2">
+          Conjunt de cartes
+        </label>
+
+        <select id="datasetSelect"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-800 font-semibold">
+          <option value="glosari.json">Glossari</option>
+          <option value="abreviatures.json">Abreviatures</option>
+        </select>
       </div>
     </header>
 
@@ -141,12 +127,15 @@
         <button id="studyModeBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold">
           Mode estudi: pendents
         </button>
+
         <button id="shuffleBtn" class="btn-press px-3 py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold">
           Barrejar
         </button>
+
         <button id="resetProgressBtn" class="btn-press px-3 py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold">
           Reiniciar progrés
         </button>
+
         <button id="resetOrderBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-200 text-slate-800 text-sm font-semibold">
           Ordre original
         </button>
@@ -155,68 +144,55 @@
 
     <main class="flex-1 min-h-0">
       <div class="h-full perspective">
-        <div id="card"
-             class="relative h-full w-full preserve-3d card-animated card-enter cursor-pointer select-none">
-          
-          <!-- Cara frontal -->
+        <div id="card" class="relative h-full w-full preserve-3d card-animated card-enter cursor-pointer select-none">
+
           <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col">
             <div class="flex items-center justify-between gap-3">
-              <span class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Terme</span>
+              <span id="frontLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 1</span>
               <div class="flex items-center gap-2">
                 <button id="speakFrontBtn"
-                        class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
-                        title="Escoltar terme"
-                        aria-label="Escoltar terme">
-                  🔊
-                </button>
+                  class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
+                  title="Escoltar" aria-label="Escoltar">🔊</button>
+
                 <button id="learnFrontBtn"
-                        class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
-                        title="Marcar com apresa"
-                        aria-label="Marcar com apresa">
-                  ✅
-                </button>
+                  class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
+                  title="Marcar com apresa" aria-label="Marcar com apresa">✅</button>
               </div>
             </div>
 
             <div class="flex-1 flex flex-col items-center justify-center text-center py-4">
               <p id="frontIndex" class="text-sm font-semibold text-slate-500 mb-4">Carta 0 de 0</p>
               <h2 id="frontTerm" class="term-text font-extrabold text-slate-800 text-4xl sm:text-5xl">Carregant...</h2>
-              <p class="mt-6 text-sm text-slate-500">Toca la carta per veure la definició</p>
+              <p class="mt-6 text-sm text-slate-500">Toca la carta per veure el revers</p>
             </div>
           </section>
 
-          <!-- Cara trasera -->
           <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col card-flip">
             <div class="flex items-center justify-between gap-3">
-              <span class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Definició</span>
+              <span id="backSectionTitle" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 2</span>
               <div class="flex items-center gap-2">
                 <button id="speakBackBtn"
-                        class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
-                        title="Escoltar terme"
-                        aria-label="Escoltar terme">
-                  🔊
-                </button>
+                  class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
+                  title="Escoltar" aria-label="Escoltar">🔊</button>
+
                 <button id="learnBackBtn"
-                        class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
-                        title="Marcar com apresa"
-                        aria-label="Marcar com apresa">
-                  ✅
-                </button>
+                  class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
+                  title="Marcar com apresa" aria-label="Marcar com apresa">✅</button>
               </div>
             </div>
 
             <div class="mt-4 mb-3">
-              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Terme</p>
+              <p id="backTermLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 1</p>
               <h3 id="backTerm" class="text-xl sm:text-2xl font-bold text-slate-800 mt-1">—</h3>
             </div>
 
             <div class="mb-4">
-              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Definició</p>
+              <p id="backValueLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 2</p>
               <p id="definitionText" class="text-base sm:text-lg font-medium text-slate-800 mt-1 leading-relaxed">—</p>
             </div>
 
             <div class="mt-auto">
-              <p class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Exemple</p>
+              <p id="exampleLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 3</p>
               <div class="mt-1 rounded-2xl border border-white/60 bg-white/50 p-3">
                 <p id="exampleText" class="italic text-slate-900 font-medium leading-relaxed">—</p>
               </div>
@@ -228,30 +204,20 @@
 
     <footer class="glass shadow-soft rounded-2xl p-3">
       <div class="grid grid-cols-3 gap-2">
-        <button id="prevBtn" class="btn-press py-3 rounded-xl bg-sky-500 text-white font-semibold">
-          ← Anterior
-        </button>
-        <button id="flipBtn" class="btn-press py-3 rounded-xl bg-slate-700 text-white font-semibold">
-          Girar
-        </button>
-        <button id="nextBtn" class="btn-press py-3 rounded-xl bg-sky-700 text-white font-semibold">
-          Següent →
-        </button>
+        <button id="prevBtn" class="btn-press py-3 rounded-xl bg-sky-500 text-white font-semibold">← Anterior</button>
+        <button id="flipBtn" class="btn-press py-3 rounded-xl bg-slate-700 text-white font-semibold">Girar</button>
+        <button id="nextBtn" class="btn-press py-3 rounded-xl bg-sky-700 text-white font-semibold">Següent →</button>
       </div>
     </footer>
   </div>
 
   <script>
-    const STORAGE_KEY = "flashcards-glossary-progress-v2";
-    const ORDER_KEY = "flashcards-glossary-order-v2";
-
-    let data = [];
-    let state = {
-      currentIndex: 0,
-      flipped: false,
-      learnedIds: [],
-      studyMode: "pending" // "pending" | "all"
+    const DATASETS = {
+      "glosari.json": "Glossari",
+      "abreviatures.json": "Abreviatures"
     };
+
+    const APP_PREFIX = "flashcards-dataset-v4";
 
     const card = document.getElementById("card");
     const frontTerm = document.getElementById("frontTerm");
@@ -263,32 +229,113 @@
     const progressBar = document.getElementById("progressBar");
     const frontIndex = document.getElementById("frontIndex");
     const studyModeBtn = document.getElementById("studyModeBtn");
+    const appTitle = document.getElementById("appTitle");
+    const datasetName = document.getElementById("datasetName");
+    const datasetSelect = document.getElementById("datasetSelect");
 
-    function normalizeEntry(item, index) {
+    let rawData = [];
+    let data = [];
+
+    let state = {
+      currentIndex: 0,
+      flipped: false,
+      learnedIds: [],
+      studyMode: "pending"
+    };
+
+    let datasetMeta = {
+      fileName: "glosari.json",
+      sourceId: "url:glosari.json",
+      title: "Cartes de Memòria Glossari",
+      frontKey: "terme",
+      backKey: "definicio",
+      extraKey: "exemple"
+    };
+
+    function prettifyLabel(text) {
+      return String(text || "")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function getDatasetDisplayName(fileName) {
+      return DATASETS[fileName] || prettifyLabel(fileName.replace(".json", ""));
+    }
+
+    function setTitleFromDataset(fileName) {
+      const niceName = getDatasetDisplayName(fileName);
+      const title = `Cartes de Memòria ${niceName}`;
+      datasetMeta.title = title;
+      datasetMeta.fileName = fileName;
+      datasetMeta.sourceId = `url:${fileName}`;
+      document.title = title;
+      appTitle.textContent = title;
+      datasetName.textContent = fileName;
+    }
+
+    function getObjectArray(json) {
+      if (Array.isArray(json)) return json;
+
+      if (json && typeof json === "object") {
+        for (const key of Object.keys(json)) {
+          if (Array.isArray(json[key])) return json[key];
+        }
+      }
+
+      return null;
+    }
+
+    function inferKeys(array) {
+      const firstValid = array.find(item => item && typeof item === "object" && !Array.isArray(item));
+      if (!firstValid) return null;
+
+      const keys = Object.keys(firstValid).filter(k => k !== "id");
+      if (keys.length < 2) return null;
+
       return {
-        id: item.id ?? index + 1,
-        terme: String(item.terme ?? "").trim(),
-        definicio: String(item.definicio ?? "").trim(),
-        exemple: String(item.exemple ?? "").trim()
+        frontKey: keys[0],
+        backKey: keys[1],
+        extraKey: keys[2] || ""
       };
     }
 
+    function normalizeEntry(item, index) {
+      const idValue = item.id ?? item.ID ?? item.Id ?? index + 1;
+
+      return {
+        id: String(idValue),
+        front: String(item[datasetMeta.frontKey] ?? "").trim(),
+        back: String(item[datasetMeta.backKey] ?? "").trim(),
+        extra: datasetMeta.extraKey ? String(item[datasetMeta.extraKey] ?? "").trim() : ""
+      };
+    }
+
+    function getStorageKey() {
+      return `${APP_PREFIX}:${datasetMeta.sourceId}:progress`;
+    }
+
+    function getOrderStorageKey() {
+      return `${APP_PREFIX}:${datasetMeta.sourceId}:order`;
+    }
+
     function saveProgress() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      localStorage.setItem(getStorageKey(), JSON.stringify({
         learnedIds: state.learnedIds,
         studyMode: state.studyMode
       }));
     }
 
-    function saveOrder() {
-      const ids = data.map(item => item.id);
-      localStorage.setItem(ORDER_KEY, JSON.stringify(ids));
-    }
-
     function loadSavedState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
+        const raw = localStorage.getItem(getStorageKey());
+        if (!raw) {
+          state.learnedIds = [];
+          state.studyMode = "pending";
+          return;
+        }
+
         const parsed = JSON.parse(raw);
         state.learnedIds = Array.isArray(parsed.learnedIds) ? parsed.learnedIds : [];
         state.studyMode = parsed.studyMode === "all" ? "all" : "pending";
@@ -298,25 +345,39 @@
       }
     }
 
+    function saveOrder() {
+      const ids = data.map(item => item.id);
+      localStorage.setItem(getOrderStorageKey(), JSON.stringify(ids));
+    }
+
     function restoreOrderIfAvailable() {
       try {
-        const raw = localStorage.getItem(ORDER_KEY);
+        const raw = localStorage.getItem(getOrderStorageKey());
         if (!raw) return;
+
         const savedIds = JSON.parse(raw);
         if (!Array.isArray(savedIds) || savedIds.length !== data.length) return;
 
         const map = new Map(data.map(item => [item.id, item]));
         const reordered = savedIds.map(id => map.get(id)).filter(Boolean);
 
-        if (reordered.length === data.length) {
-          data = reordered;
-        }
-      } catch {
-        // no hacer nada
-      }
+        if (reordered.length === data.length) data = reordered;
+      } catch {}
     }
 
-    function getTotalTerms() {
+    function updateLabels() {
+      const frontLabel = prettifyLabel(datasetMeta.frontKey || "camp 1");
+      const backLabel = prettifyLabel(datasetMeta.backKey || "camp 2");
+      const extraLabel = prettifyLabel(datasetMeta.extraKey || "detall");
+
+      document.getElementById("frontLabel").textContent = frontLabel;
+      document.getElementById("backSectionTitle").textContent = backLabel;
+      document.getElementById("backTermLabel").textContent = frontLabel;
+      document.getElementById("backValueLabel").textContent = backLabel;
+      document.getElementById("exampleLabel").textContent = extraLabel;
+    }
+
+    function getTotalCards() {
       return data.length;
     }
 
@@ -331,6 +392,7 @@
         state.currentIndex = 0;
         return;
       }
+
       if (state.currentIndex >= active.length) state.currentIndex = active.length - 1;
       if (state.currentIndex < 0) state.currentIndex = 0;
     }
@@ -352,7 +414,7 @@
     }
 
     function updateProgressUI() {
-      const total = getTotalTerms();
+      const total = getTotalCards();
       const learned = state.learnedIds.filter(id => data.some(item => item.id === id)).length;
       const pending = Math.max(total - learned, 0);
       const percent = total > 0 ? (learned / total) * 100 : 0;
@@ -362,23 +424,25 @@
       progressBar.style.width = `${percent}%`;
     }
 
-    function renderEmptyState(messageTitle, messageBody) {
+    function renderEmptyState(title, message) {
       frontIndex.textContent = "Carta 0 de 0";
-      frontTerm.textContent = messageTitle;
-      backTerm.textContent = messageTitle;
-      definitionText.textContent = messageBody;
-      exampleText.textContent = "Pots reiniciar el progrés o canviar el mode d'estudi.";
+      frontTerm.textContent = title;
+      backTerm.textContent = title;
+      definitionText.textContent = message;
+      exampleText.textContent = datasetMeta.fileName || "";
       card.classList.toggle("card-flip", state.flipped);
       updateProgressUI();
       updateStudyModeButton();
+      updateLabels();
     }
 
     function render() {
       updateProgressUI();
       updateStudyModeButton();
+      updateLabels();
 
       if (!data.length) {
-        renderEmptyState("Carregant...", "S'està carregant el glosari.");
+        renderEmptyState("Sense dades", "No hi ha cartes carregades.");
         return;
       }
 
@@ -386,7 +450,7 @@
       clampIndex();
 
       if (!active.length) {
-        renderEmptyState("Enhorabona 🎉", "Ja has acabat tots els termes pendents.");
+        renderEmptyState("Enhorabona 🎉", "Ja has completat totes les cartes pendents.");
         return;
       }
 
@@ -394,10 +458,10 @@
       const totalVisible = active.length;
 
       frontIndex.textContent = `Carta ${state.currentIndex + 1} de ${totalVisible}`;
-      frontTerm.textContent = current.terme || "Sense terme";
-      backTerm.textContent = current.terme || "Sense terme";
-      definitionText.textContent = current.definicio || "Sense definició";
-      exampleText.textContent = current.exemple || "Sense exemple";
+      frontTerm.textContent = current.front || "Sense contingut";
+      backTerm.textContent = current.front || "Sense contingut";
+      definitionText.textContent = current.back || "Sense contingut";
+      exampleText.textContent = current.extra || "Sense contingut";
 
       card.classList.toggle("card-flip", state.flipped);
     }
@@ -432,8 +496,6 @@
       if (!active.length) return;
 
       const current = active[state.currentIndex];
-      if (!current) return;
-
       if (!state.learnedIds.includes(current.id)) {
         state.learnedIds.push(current.id);
         saveProgress();
@@ -467,10 +529,10 @@
     }
 
     function restoreOriginalOrder() {
-      data.sort((a, b) => a.id - b.id);
+      data = [...rawData];
       state.currentIndex = 0;
       state.flipped = false;
-      saveOrder();
+      localStorage.removeItem(getOrderStorageKey());
       render();
       triggerCardEntryAnimation();
     }
@@ -484,52 +546,67 @@
       triggerCardEntryAnimation();
     }
 
-    function speakCurrentTerm() {
+    function speakCurrentFront() {
       const active = getActiveCards();
       if (!active.length) return;
-
       const current = active[state.currentIndex];
-      if (!current?.terme || !("speechSynthesis" in window)) return;
+
+      if (!current?.front || !("speechSynthesis" in window)) return;
 
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(current.terme);
+      const utterance = new SpeechSynthesisUtterance(current.front);
       utterance.lang = "ca-ES";
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
 
-    async function loadGlossary() {
+    async function loadDataset(fileName) {
       try {
-        const response = await fetch("./glosari.json", { cache: "no-store" });
+        setTitleFromDataset(fileName);
+
+        const response = await fetch(`./${fileName}`, { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const json = await response.json();
-        if (!Array.isArray(json)) {
-          throw new Error("El fitxer glosari.json no conté un array.");
+        const array = getObjectArray(json);
+
+        if (!array || !Array.isArray(array)) {
+          throw new Error("El JSON no conté un array vàlid.");
         }
 
-        data = json.map(normalizeEntry).filter(item => item.terme);
-        data.sort((a, b) => a.id - b.id);
+        const inferred = inferKeys(array);
+        if (!inferred) {
+          throw new Error("El JSON necessita almenys 2 camps útils per registre.");
+        }
+
+        datasetMeta.frontKey = inferred.frontKey;
+        datasetMeta.backKey = inferred.backKey;
+        datasetMeta.extraKey = inferred.extraKey;
+
+        data = array.map(normalizeEntry).filter(item => item.front || item.back);
+        rawData = [...data];
 
         loadSavedState();
         restoreOrderIfAvailable();
 
         state.learnedIds = state.learnedIds.filter(id => data.some(item => item.id === id));
+        state.currentIndex = 0;
+        state.flipped = false;
 
         render();
       } catch (error) {
         frontIndex.textContent = "Error";
-        frontTerm.textContent = "No s'ha pogut carregar el glosari";
+        frontTerm.textContent = "No s'ha pogut carregar el JSON";
         backTerm.textContent = "Error";
-        definitionText.textContent = "Revisa que glosari.json sigui a la mateixa carpeta que index.html i que GitHub Pages estigui publicat correctament.";
-        exampleText.textContent = String(error.message || error);
+        definitionText.textContent = error.message || String(error);
+        exampleText.textContent = fileName;
         updateProgressUI();
-        updateStudyModeButton();
+        updateLabels();
       }
     }
 
-    // Eventos
     card.addEventListener("click", flipCard);
+
     document.getElementById("flipBtn").addEventListener("click", (e) => {
       e.stopPropagation();
       flipCard();
@@ -555,33 +632,25 @@
       markLearned();
     });
 
-    document.getElementById("resetProgressBtn").addEventListener("click", () => {
-      resetProgress();
-    });
-
-    document.getElementById("shuffleBtn").addEventListener("click", () => {
-      shuffleCards();
-    });
-
-    document.getElementById("resetOrderBtn").addEventListener("click", () => {
-      restoreOriginalOrder();
-    });
-
-    document.getElementById("studyModeBtn").addEventListener("click", () => {
-      toggleStudyMode();
-    });
+    document.getElementById("resetProgressBtn").addEventListener("click", resetProgress);
+    document.getElementById("shuffleBtn").addEventListener("click", shuffleCards);
+    document.getElementById("resetOrderBtn").addEventListener("click", restoreOriginalOrder);
+    document.getElementById("studyModeBtn").addEventListener("click", toggleStudyMode);
 
     document.getElementById("speakFrontBtn").addEventListener("click", (e) => {
       e.stopPropagation();
-      speakCurrentTerm();
+      speakCurrentFront();
     });
 
     document.getElementById("speakBackBtn").addEventListener("click", (e) => {
       e.stopPropagation();
-      speakCurrentTerm();
+      speakCurrentFront();
     });
 
-    // Gestos básicos móviles
+    datasetSelect.addEventListener("change", () => {
+      loadDataset(datasetSelect.value);
+    });
+
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -594,15 +663,11 @@
       const diff = touchEndX - touchStartX;
 
       if (Math.abs(diff) > 70) {
-        if (diff < 0) {
-          nextCard();
-        } else {
-          prevCard();
-        }
+        if (diff < 0) nextCard();
+        else prevCard();
       }
     }, { passive: true });
 
-    // Teclado escritorio
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") nextCard();
       if (e.key === "ArrowLeft") prevCard();
@@ -612,7 +677,7 @@
       }
     });
 
-    loadGlossary();
+    loadDataset(datasetSelect.value);
   </script>
 </body>
 </html>
