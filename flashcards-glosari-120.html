@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cartes de Memòria</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+html,body{
+height:100%;
+margin:0;
+overflow:hidden;
+}
+
+.preserve-3d{
+transform-style:preserve-3d;
+}
+
+.backface-hidden{
+backface-visibility:hidden;
+-webkit-backface-visibility:hidden;
+}
+
+.rotate-y-180{
+transform:rotateY(180deg);
+}
+</style>
+</head>
+
+<body class="bg-stone-200 p-3 text-slate-800">
+
+<div class="max-w-xl mx-auto h-[100dvh] flex flex-col gap-3">
+
+<header class="bg-white rounded-xl shadow p-3 text-center">
+<h1 class="text-2xl font-bold">Cartes de Memòria</h1>
+</header>
+
+<section class="bg-white rounded-xl shadow p-3">
+
+<div class="flex justify-between mb-2">
+
+<div>
+<p class="text-xs uppercase text-slate-500">Progrés</p>
+<p id="progressText" class="font-bold">0 apreses de 120</p>
+</div>
+
+<div class="text-right">
+<p class="text-xs uppercase text-slate-500">Pendents</p>
+<p id="remainingInfo" class="font-bold">4</p>
+</div>
+
+</div>
+
+<div class="h-2 bg-stone-200 rounded-full overflow-hidden">
+<div id="progressBar" class="h-full bg-emerald-500"></div>
+</div>
+
+</section>
+
+<div class="grid grid-cols-2 gap-2">
+
+<button id="shuffleBtn"
+class="bg-amber-500 text-white py-2 rounded-lg font-semibold">
+Barrejar
+</button>
+
+<button id="resetBtn"
+class="bg-rose-500 text-white py-2 rounded-lg font-semibold">
+Reiniciar
+</button>
+
+</div>
+
+<main class="flex-1">
+
+<div class="h-full bg-white rounded-xl shadow p-3">
+
+<div class="h-full perspective-[1200px]">
+
+<div id="card"
+class="relative w-full h-full preserve-3d transition-transform duration-700">
+
+<!-- FRONT -->
+
+<div id="frontFace"
+class="absolute inset-0 backface-hidden bg-gradient-to-br from-stone-300 via-stone-200 to-slate-200 rounded-xl p-4 flex flex-col">
+
+<div class="flex justify-end">
+<button id="learnFront"
+class="bg-slate-700 text-white w-10 h-10 rounded-full flex items-center justify-center">
+📖
+</button>
+</div>
+
+<div class="flex-1 flex flex-col justify-center items-center text-center">
+
+<p class="uppercase text-sm tracking-[0.25em] text-slate-600 mb-2">
+Terme
+</p>
+
+<h2 id="frontTerm"
+class="font-extrabold text-slate-800 break-words">
+—
+</h2>
+
+</div>
+
+</div>
+
+<!-- BACK -->
+
+<div id="backFace"
+class="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-stone-300 via-stone-200 to-slate-200 rounded-xl p-4 flex flex-col">
+
+<div class="flex justify-end">
+<button id="learnBack"
+class="bg-slate-700 text-white w-10 h-10 rounded-full flex items-center justify-center">
+📖
+</button>
+</div>
+
+<div class="mb-2">
+
+<p class="uppercase text-xs tracking-[0.25em] text-slate-600">
+Terme
+</p>
+
+<h3 id="backTerm"
+class="text-slate-700 font-bold"></h3>
+
+</div>
+
+<div class="mb-3">
+
+<p class="uppercase text-xs tracking-[0.25em] text-slate-600">
+Definició
+</p>
+
+<p id="definitionText"
+class="text-slate-800 font-medium"></p>
+
+</div>
+
+<div class="mt-1">
+
+<p class="uppercase text-xs tracking-[0.25em] text-slate-600">
+Exemple
+</p>
+
+<div class="bg-white/40 border rounded-lg p-2">
+
+<p id="exampleText"
+class="italic text-slate-900 font-medium"></p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+<footer class="grid grid-cols-2 gap-2">
+
+<button id="prevBtn"
+class="bg-sky-500 text-white py-3 rounded-lg font-semibold">
+Anterior
+</button>
+
+<button id="nextBtn"
+class="bg-sky-700 text-white py-3 rounded-lg font-semibold">
+Següent
+</button>
+
+</footer>
+
+</div>
+
+<script>
+
+const data=[
+{ id: 1, terme: "abintestat", definicio: "Sense testament.", exemple: "L'herència es tramitarà abintestat perquè no hi ha testament." },
+{ id: 2, terme: "acord", definicio: "Decisió adoptada per un òrgan col·legiat.", exemple: "El Consell adopta l'acord següent." },
+{ id: 3, terme: "acreditació", definicio: "Document que prova una condició o circumstància.", exemple: "Cal presentar l'acreditació corresponent." },
+{ id: 4, terme: "adjudicació", definicio: "Acte administratiu pel qual s'assigna un contracte o un dret.", exemple: "L'adjudicació del contracte es publicarà al butlletí oficial." },
+{ id: 5, terme: "al detall", definicio: "En quantitats petites; en venda minorista.", exemple: "L'establiment es dedica a la venda al detall." },
+{ id: 6, terme: "al·legació", definicio: "Manifestació o argument presentat dins un procediment administratiu.", exemple: "L'interessat pot presentar al·legacions." },
+{ id: 7, terme: "anotació", definicio: "Inscripció o apunt registral.", exemple: "L'anotació consta al registre." },
+{ id: 8, terme: "assentament", definicio: "Anotació o inscripció feta en un registre.", exemple: "L'assentament registral ja consta al llibre oficial." },
+{ id: 9, terme: "atendre", definicio: "Tenir en compte o considerar.", exemple: "Cal atendre les al·legacions presentades dins el termini." },
+{ id: 10, terme: "autenticar", definicio: "Legalitzar o donar autenticitat a un document.", exemple: "El secretari pot autenticar la còpia del document." },
+{ id: 11, terme: "base imposable", definicio: "Import o base sobre la qual recau un tribut.", exemple: "L'impost es calcula sobre la base imposable." },
+{ id: 12, terme: "bixest", definicio: "Dit de l'any que té 366 dies.", exemple: "El 2024 és un any bixest." },
+{ id: 13, terme: "borsari", definicio: "Relatiu a la borsa o a les operacions que s'hi fan.", exemple: "L'informe analitza el comportament borsari de l'empresa." },
+{ id: 14, terme: "citació", definicio: "Acte o document pel qual es convoca formalment una persona perquè comparegui.", exemple: "La citació s'ha notificat correctament." },
+{ id: 15, terme: "compulsar", definicio: "Acreditar oficialment que una còpia coincideix amb l'original.", exemple: "L'oficina pot compulsar la còpia del DNI." },
+{ id: 16, terme: "confiscar", definicio: "Privar algú dels seus béns per decisió legal o judicial.", exemple: "La sentència va ordenar confiscar els béns." },
+{ id: 17, terme: "constrenyiment", definicio: "Procediment executiu o via forçosa per exigir el compliment d'una obligació.", exemple: "El deute es cobrarà per via de constrenyiment." },
+{ id: 18, terme: "contractació", definicio: "Procés administratiu per adjudicar un contracte públic.", exemple: "La contractació es farà per procediment obert." },
+{ id: 19, terme: "convocatòria", definicio: "Acte de convocar formalment una sessió o procediment.", exemple: "La convocatòria es publicarà al tauler d'anuncis." },
+{ id: 20, terme: "demandar", definicio: "Demanar alguna cosa per via judicial.", exemple: "La part afectada va demandar l'empresa pels danys causats." },
+{ id: 21, terme: "desplegar", definicio: "Dictar les disposicions necessàries per aplicar una llei.", exemple: "El Govern ha de desplegar aquesta llei mitjançant un reglament." },
+{ id: 22, terme: "diligència", definicio: "Anotació administrativa que deixa constància d'una actuació.", exemple: "El secretari va estendre una diligència." },
+{ id: 23, terme: "embargar", definicio: "Retenir un bé per ordre d'una autoritat judicial.", exemple: "El jutjat va acordar embargar el compte corrent." },
+{ id: 24, terme: "emetre", definicio: "Expressar o manifestar un informe o opinió.", exemple: "L'òrgan competent ha d'emetre informe previ." },
+{ id: 25, terme: "escorcollar", definicio: "Examinar minuciosament alguna cosa.", exemple: "La policia va escorcollar el vehicle amb autorització judicial." },
+{ id: 26, terme: "esmenar", definicio: "Corregir un defecte o error.", exemple: "La persona interessada disposa de deu dies per esmenar la sol·licitud." },
+{ id: 27, terme: "establir-se", definicio: "Fixar la residència en un lloc.", exemple: "La família es va establir al municipi l'any passat." },
+{ id: 28, terme: "estendre", definicio: "Posar per escrit una acta o document.", exemple: "El secretari va estendre l'acta de la reunió." },
+{ id: 29, terme: "expedir", definicio: "Despatxar o emetre oficialment un document.", exemple: "L'òrgan competent pot expedir el certificat." },
+{ id: 30, terme: "expedient", definicio: "Conjunt ordenat de documents relatius a un procediment.", exemple: "L'expedient administratiu consta de diversos informes." },
+{ id: 31, terme: "informe", definicio: "Document que expressa una opinió tècnica o jurídica sobre un assumpte.", exemple: "El servei jurídic ha emès un informe favorable." },
+{ id: 32, terme: "interès legítim", definicio: "Situació jurídica que permet intervenir en un procediment administratiu.", exemple: "Només poden intervenir les persones amb interès legítim." },
+{ id: 33, terme: "interlocutòria", definicio: "Resolució judicial sobre una qüestió incidental o processal.", exemple: "El jutge va dictar una interlocutòria abans de la sentència." },
+{ id: 34, terme: "interposició", definicio: "Acció de presentar o formalitzar un recurs.", exemple: "La interposició del recurs suspèn el termini." },
+{ id: 35, terme: "legatari", definicio: "Persona que rep un llegat.", exemple: "El legatari va acceptar el bé deixat en testament." },
+{ id: 36, terme: "licitador", definicio: "Persona que ofereix un preu en una subhasta o licitació.", exemple: "El licitador ha presentat l'oferta més avantatjosa." },
+{ id: 37, terme: "liquidació", definicio: "Determinació exacta d'un import a pagar o percebre.", exemple: "La liquidació de l'impost es farà al final de l'exercici." },
+{ id: 38, terme: "liquiditat", definicio: "Facilitat de convertir un actiu en diners.", exemple: "L'empresa necessita liquiditat per afrontar pagaments immediats." },
+{ id: 39, terme: "mediana", definicio: "Dada situada al centre d'un conjunt ordenat de valors.", exemple: "La mediana dels resultats és de quinze punts." },
+{ id: 40, terme: "mesura", definicio: "Mitjà adoptat per aconseguir un objectiu.", exemple: "La mesura adoptada és adequada a la finalitat." },
+{ id: 41, terme: "mida", definicio: "Mesura, especialment lineal.", exemple: "La mida mínima exigida és de dos metres." },
+{ id: 42, terme: "meritar", definicio: "Tenir dret a una retribució per raó d'un servei.", exemple: "Les dietes es meriten el dia del desplaçament." },
+{ id: 43, terme: "mitjana", definicio: "Resultat de dividir la suma de valors pel nombre d'elements.", exemple: "La mitjana dels resultats supera la prevista." },
+{ id: 44, terme: "nomenament", definicio: "Designació d'una persona per ocupar un càrrec.", exemple: "El nomenament es publicarà al butlletí oficial." },
+{ id: 45, terme: "notificació", definicio: "Comunicació formal d'un acte administratiu a una persona interessada.", exemple: "La notificació s'ha fet per via electrònica." },
+{ id: 46, terme: "oferent", definicio: "Persona que presenta una oferta en una licitació.", exemple: "L'oferent ha d'acreditar la solvència econòmica." },
+{ id: 47, terme: "obertura", definicio: "Acció d'obrir documents o pliques en un procediment.", exemple: "L'obertura de pliques serà en acte públic." },
+{ id: 48, terme: "parentiu", definicio: "Vincle existent entre parents.", exemple: "Cal acreditar el parentiu amb la documentació." },
+{ id: 49, terme: "període de carència", definicio: "Temps mínim de cotització necessari per accedir a una prestació.", exemple: "No compleix el període de carència." },
+{ id: 50, terme: "plet", definicio: "Litigi o contesa judicial entre parts.", exemple: "El plet continua pendent de resolució." },
+{ id: 51, terme: "plusvàlua", definicio: "Augment del valor d'un bé per causes externes.", exemple: "La venda del solar ha generat una plusvàlua." },
+{ id: 52, terme: "pluriennal", definicio: "Que dura diversos anys.", exemple: "És un programa pluriennal." },
+{ id: 53, terme: "preveure", definicio: "Concebre per endavant allò que ha d'ocórrer.", exemple: "La norma preveu aquest supòsit." },
+{ id: 54, terme: "prenedor", definicio: "Persona que contracta una assegurança.", exemple: "El prenedor ha de comunicar el sinistre." },
+{ id: 55, terme: "pronunciar-se", definicio: "Declarar o manifestar una decisió.", exemple: "El tribunal es va pronunciar sobre la qüestió." },
+{ id: 56, terme: "quitança", definicio: "Document que acredita el pagament d'un deute.", exemple: "El treballador va signar la quitança." },
+{ id: 57, terme: "quòrum", definicio: "Nombre mínim de membres necessari per adoptar acords.", exemple: "No hi ha quòrum per iniciar la sessió." },
+{ id: 58, terme: "recàrrec", definicio: "Quantitat afegida a un pagament.", exemple: "El retard comporta un recàrrec." },
+{ id: 59, terme: "recurs d'alçada", definicio: "Recurs administratiu contra una resolució d'un òrgan inferior.", exemple: "Es pot interposar recurs d'alçada." },
+{ id: 60, terme: "registre", definicio: "Sistema oficial d'inscripció de documents.", exemple: "La sol·licitud s'ha inscrit al registre." },
+{ id: 61, terme: "rendible", definicio: "Que produeix benefici econòmic.", exemple: "La inversió és rendible." },
+{ id: 62, terme: "rentable", definicio: "Que es pot rentar.", exemple: "Aquesta peça és rentable." },
+{ id: 63, terme: "requisar", definicio: "Intervenir béns per ordre d'una autoritat.", exemple: "La policia va requisar el material." },
+{ id: 64, terme: "resolució", definicio: "Decisió formal adoptada per una autoritat administrativa.", exemple: "La resolució posa fi al procediment." },
+{ id: 65, terme: "rescabalament", definicio: "Compensació d'una pèrdua o dany.", exemple: "Té dret al rescabalament dels perjudicis." },
+{ id: 66, terme: "rúbrica", definicio: "Traç abreujat que acompanya la signatura.", exemple: "El document du la rúbrica del secretari." },
+{ id: 67, terme: "sanció", definicio: "Pena imposada per infracció administrativa.", exemple: "La sanció s'ha notificat a l'interessat." },
+{ id: 68, terme: "secretari", definicio: "Persona que dona fe dels actes administratius.", exemple: "El secretari aixeca acta de la sessió." },
+{ id: 69, terme: "servitud de pas", definicio: "Dret de pas sobre una finca aliena.", exemple: "La finca gaudeix d'una servitud de pas." },
+{ id: 70, terme: "si escau", definicio: "Locució que significa 'si és procedent'.", exemple: "Cal aportar, si escau, la documentació." },
+{ id: 71, terme: "sol·licitud", definicio: "Petició formal dirigida a l'Administració.", exemple: "Ha presentat una sol·licitud d'ajut." },
+{ id: 72, terme: "subhasta", definicio: "Procediment d'adjudicació mitjançant licitació pública.", exemple: "El bé es vendrà en subhasta." },
+{ id: 73, terme: "subsidi", definicio: "Prestació econòmica pública.", exemple: "Pot percebre el subsidi d'atur." },
+{ id: 74, terme: "termini", definicio: "Període fixat per realitzar una actuació.", exemple: "El termini és de deu dies." },
+{ id: 75, terme: "tramesa", definicio: "Enviament d'un document.", exemple: "La tramesa s'ha fet per via electrònica." },
+{ id: 76, terme: "validació", definicio: "Verificació que dona validesa formal.", exemple: "La validació és prèvia a la resolució." },
+{ id: 77, terme: "valisa", definicio: "Sac utilitzat per transportar documentació oficial.", exemple: "Els documents es remeten per valisa." },
+{ id: 78, terme: "violació de domicili", definicio: "Entrada il·legal en un domicili.", exemple: "Els fets podrien constituir violació de domicili." },
+{ id: 79, terme: "vistiplau", definicio: "Conformitat o aprovació formal.", exemple: "L'informe du el vistiplau de la cap." },
+{ id: 80, terme: "adjudicació provisional", definicio: "Assignació temporal d'un contracte abans de la definitiva.", exemple: "S'ha publicat l'adjudicació provisional." },
+{ id: 81, terme: "acta", definicio: "Document que deixa constància d'una reunió o sessió.", exemple: "El secretari va redactar l'acta." },
+{ id: 82, terme: "arxiu", definicio: "Lloc o sistema on es conserven documents.", exemple: "L'expedient es conserva a l'arxiu." },
+{ id: 83, terme: "certificació", definicio: "Document que dona fe d'un fet.", exemple: "S'ha emès la certificació corresponent." },
+{ id: 84, terme: "compareixença", definicio: "Acte de presentar-se davant una autoritat.", exemple: "La compareixença està fixada." },
+{ id: 85, terme: "comprovació", definicio: "Verificació d'un fet o document.", exemple: "S'ha fet la comprovació de dades." },
+{ id: 86, terme: "conciliació", definicio: "Procediment per resoldre conflictes sense judici.", exemple: "S'ha iniciat un acte de conciliació." },
+{ id: 87, terme: "competència", definicio: "Atribució legal per actuar.", exemple: "L'òrgan és competent per resoldre." },
+{ id: 88, terme: "compliment", definicio: "Execució d'una obligació.", exemple: "Cal verificar el compliment." },
+{ id: 89, terme: "comunicació", definicio: "Transmissió formal d'informació.", exemple: "La comunicació s'ha enviat." },
+{ id: 90, terme: "constitució", definicio: "Acte de crear formalment una entitat.", exemple: "La constitució es formalitza." },
+{ id: 91, terme: "declaració", definicio: "Manifestació formal d'un fet.", exemple: "Ha presentat una declaració." },
+{ id: 92, terme: "delegació", definicio: "Transferència d'una competència.", exemple: "La delegació s'ha publicat." },
+{ id: 93, terme: "disposició", definicio: "Norma o mandat administratiu.", exemple: "La disposició entra en vigor." },
+{ id: 94, terme: "execució", definicio: "Aplicació efectiva d'una resolució.", exemple: "S'ha iniciat l'execució." },
+{ id: 95, terme: "expedició", definicio: "Acció d'emetre un document oficial.", exemple: "La targeta està en fase d'expedició." },
+{ id: 96, terme: "fiscalització", definicio: "Control de legalitat o de comptes.", exemple: "La despesa està subjecta a fiscalització." },
+{ id: 97, terme: "homologació", definicio: "Reconeixement oficial d'una equivalència.", exemple: "Ha sol·licitat l'homologació." },
+{ id: 98, terme: "inspecció", definicio: "Activitat de control administratiu.", exemple: "S'ha fet una inspecció." },
+{ id: 99, terme: "instrucció", definicio: "Fase d'investigació d'un procediment.", exemple: "El procediment és en fase d'instrucció." },
+{ id: 100, terme: "jurisdicció", definicio: "Poder de jutjar i executar el jutjat.", exemple: "La jurisdicció correspon al jutjat." },
+{ id: 101, terme: "legitimar", definicio: "Donar validesa legal.", exemple: "Cal legitimar la signatura." },
+{ id: 102, terme: "mandat", definicio: "Ordre o encàrrec oficial.", exemple: "El mandat té una durada de quatre anys." },
+{ id: 103, terme: "mediació", definicio: "Intervenció per resoldre un conflicte.", exemple: "S'ha proposat la mediació." },
+{ id: 104, terme: "notificació electrònica", definicio: "Comunicació administrativa per via digital.", exemple: "La notificació electrònica és obligatòria." },
+{ id: 105, terme: "oposició", definicio: "Procediment selectiu per accedir a la funció pública.", exemple: "Ha superat l'oposició." },
+{ id: 106, terme: "padró", definicio: "Registre administratiu d'habitants.", exemple: "Figura inscrit al padró." },
+{ id: 107, terme: "patrimoni", definicio: "Conjunt de béns i drets.", exemple: "El patrimoni municipal." },
+{ id: 108, terme: "penalització", definicio: "Sanció econòmica.", exemple: "S'aplicarà una penalització." },
+{ id: 109, terme: "prescripció", definicio: "Extinció d'un dret pel pas del temps.", exemple: "La infracció ha prescrit." },
+{ id: 110, terme: "procediment", definicio: "Conjunt d'actuacions administratives ordenades.", exemple: "El procediment està en tràmit." },
+{ id: 111, terme: "pròrroga", definicio: "Ampliació d'un termini.", exemple: "S'ha concedit una pròrroga." },
+{ id: 112, terme: "publicació", definicio: "Difusió oficial d'un acte.", exemple: "La publicació al BOIB." },
+{ id: 113, terme: "qualificació", definicio: "Valoració jurídica d'un fet.", exemple: "La qualificació dels fets." },
+{ id: 114, terme: "ratificació", definicio: "Confirmació d'una decisió.", exemple: "La ratificació del conveni." },
+{ id: 115, terme: "revisió", definicio: "Examen d'una resolució.", exemple: "S'ha sol·licitat la revisió." },
+{ id: 116, terme: "vigència", definicio: "Període durant el qual una norma és aplicable.", exemple: "La vigència és de quatre anys." },
+{ id: 117, terme: "votació", definicio: "Acte de votar en una sessió.", exemple: "La votació ha estat favorable." },
+{ id: 118, terme: "vot", definicio: "Manifestació de la voluntat en una votació.", exemple: "Ha emès el seu vot." },
+{ id: 119, terme: "zona administrativa", definicio: "Àmbit territorial de gestió administrativa.", exemple: "Pertany a aquesta zona administrativa." },
+{ id: 120, terme: "zona urbana", definicio: "Àrea del municipi destinada a ús urbà.", exemple: "La parcel·la es troba en zona urbana." }
+]
+
+let state={
+index:0,
+flipped:false,
+learned:[]
+}
+
+const card=document.getElementById("card")
+
+const frontTerm=document.getElementById("frontTerm")
+const backTerm=document.getElementById("backTerm")
+const definitionText=document.getElementById("definitionText")
+const exampleText=document.getElementById("exampleText")
+
+const progressText=document.getElementById("progressText")
+const remainingInfo=document.getElementById("remainingInfo")
+const progressBar=document.getElementById("progressBar")
+
+function autoFont(element,max,min){
+
+let len=element.textContent.length
+
+let size=max-(len*0.03)
+
+if(size<min) size=min
+
+element.style.fontSize=size+"rem"
+
+}
+
+function activeCards(){
+return data.filter((c,i)=>!state.learned.includes(i))
+}
+
+function render(){
+
+const active=activeCards()
+
+progressText.textContent=state.learned.length+" apreses de "+data.length
+
+remainingInfo.textContent=active.length
+
+progressBar.style.width=(state.learned.length/data.length*100)+"%"
+
+if(active.length===0){
+frontTerm.textContent="Enhorabona"
+backTerm.textContent="Enhorabona"
+definitionText.textContent="Ja has acabat"
+exampleText.textContent="Prem Reiniciar"
+return
+}
+
+if(state.index>=active.length) state.index=active.length-1
+
+const cardData=active[state.index]
+
+frontTerm.textContent=cardData.terme
+backTerm.textContent=cardData.terme
+definitionText.textContent=cardData.definicio
+exampleText.textContent=cardData.exemple
+
+autoFont(frontTerm,4,2)
+autoFont(backTerm,2.2,1.6)
+autoFont(definitionText,1.8,1.2)
+autoFont(exampleText,1.8,1.2)
+
+card.classList.toggle("rotate-y-180",state.flipped)
+
+}
+
+function flip(){
+state.flipped=!state.flipped
+render()
+}
+
+function next(){
+const a=activeCards()
+state.index=(state.index+1)%a.length
+state.flipped=false
+render()
+}
+
+function prev(){
+const a=activeCards()
+state.index=(state.index-1+a.length)%a.length
+state.flipped=false
+render()
+}
+
+function learn(){
+
+const active=activeCards()
+
+const realIndex=data.indexOf(active[state.index])
+
+state.learned.push(realIndex)
+
+state.index=0
+state.flipped=false
+
+render()
+
+}
+
+function reset(){
+state.learned=[]
+state.index=0
+state.flipped=false
+render()
+}
+
+function shuffle(){
+data.sort(()=>Math.random()-0.5)
+state.index=0
+state.flipped=false
+render()
+}
+
+card.onclick=flip
+
+document.getElementById("nextBtn").onclick=next
+document.getElementById("prevBtn").onclick=prev
+
+document.getElementById("learnFront").onclick=e=>{
+e.stopPropagation()
+learn()
+}
+
+document.getElementById("learnBack").onclick=e=>{
+e.stopPropagation()
+learn()
+}
+
+document.getElementById("resetBtn").onclick=reset
+document.getElementById("shuffleBtn").onclick=shuffle
+
+render()
+
+</script>
+
+</body>
+</html>
