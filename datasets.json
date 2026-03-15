@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Glosari (120 termes)",
+    "file": "glosari.json"
+  },
+  {
+    "name": "Glosari (60 termes)",
+    "file": "glosari60.json"
+  },
+  {
+  "name": "Abreviatures",
+  "file": "abreviatures.json"
+  }
+]

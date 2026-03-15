@@ -2,682 +2,598 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cartes de Memòria</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-top: env(safe-area-inset-top, 0px);
-    }
-
     html, body {
       height: 100%;
       margin: 0;
-      background: #e7e5e4;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      min-height: 100dvh;
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
       overflow: hidden;
     }
-
-    .perspective { perspective: 1400px; }
     .preserve-3d { transform-style: preserve-3d; }
     .backface-hidden {
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
     }
+    .rotate-y-180 { transform: rotateY(180deg); }
 
-    .card-face {
-      position: absolute;
-      inset: 0;
-      border-radius: 1rem;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
+    .flashcard {
+      padding: 1rem 1rem 3.8rem 1rem;
     }
 
-    .card-flip { transform: rotateY(180deg); }
-
-    .card-animated {
-      transition: transform 0.55s cubic-bezier(.22,1,.36,1), opacity 0.25s ease;
-      will-change: transform;
+    .action-icon {
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(51, 65, 85, 0.9);
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+      user-select: none;
+      cursor: pointer;
+      transition: color 160ms ease, transform 160ms ease, background 160ms ease;
+      border: 1px solid rgba(255,255,255,0.16);
     }
 
-    .card-enter { animation: cardEnter 0.28s ease; }
+    .action-icon:active { transform: scale(0.96); }
+    .action-icon.active { color: #facc15; }
 
-    @keyframes cardEnter {
-      from { opacity: 0.65; transform: scale(0.985); }
-      to { opacity: 1; transform: scale(1); }
+    .feedback-slot {
+      min-height: 1.35rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #475569;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 .5rem;
+      line-height: 1.1;
     }
 
-    .glass {
-      background: rgba(255,255,255,0.82);
-      backdrop-filter: blur(10px);
+    .hint-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5rem;
+      margin-top: 1.8rem;
+      padding: 0 .25rem;
+      color: #475569;
+    }
+    .hint-row .hint-center {
+      font-size: 0.72rem;
+      opacity: .8;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .hint-row .hint-edge {
+      font-size: 0.88rem;
+      white-space: nowrap;
     }
 
-    .shadow-soft {
-      box-shadow:
-        0 10px 25px rgba(15, 23, 42, 0.08),
-        0 2px 10px rgba(15, 23, 42, 0.04);
+    .example-box {
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: 0.9rem;
+      padding: 0.85rem 0.95rem;
     }
 
-    .btn-press {
-      transition: transform 0.14s ease, opacity 0.14s ease;
+    .dataset-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #475569 50%), linear-gradient(135deg, #475569 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
     }
 
-    .btn-press:active { transform: scale(0.98); }
+    .flashcard-surface {
+      background: linear-gradient(135deg, rgb(214 211 209), rgb(231 229 228), rgb(226 232 240));
+    }
 
-    .term-text {
-      line-height: 1.05;
+    .term-front {
+      font-weight: 800;
+      color: rgb(30 41 59);
+      text-wrap: balance;
       word-break: break-word;
-      overflow-wrap: anywhere;
+    }
+
+    .back-main-standard,
+    .back-main-abbr {
+      color: rgb(15 23 42);
+      font-weight: 700;
+      line-height: 1.15;
+      text-wrap: balance;
+      word-break: break-word;
+    }
+
+    .back-main-abbr {
+      text-align: center;
+    }
+
+    .card-shell {
+      touch-action: pan-y;
+    }
+
+    .card-fade-enter {
+      animation: cardFade .22s ease;
+    }
+
+    @keyframes cardFade {
+      from { opacity: .72; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body class="text-slate-800">
-  <div class="max-w-xl mx-auto h-[100dvh] p-3 sm:p-4 flex flex-col gap-3">
-
-    <header class="glass shadow-soft rounded-2xl p-4">
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <h1 id="appTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">
-            Cartes de Memòria
-          </h1>
-          <p id="datasetName" class="text-sm text-slate-600 mt-1 break-all">
-            glosari.json
-          </p>
-        </div>
-        <div class="text-3xl shrink-0" aria-hidden="true">📚</div>
-      </div>
-
-      <div class="mt-4">
-        <label for="datasetSelect" class="block text-[11px] uppercase tracking-[0.22em] text-slate-500 mb-2">
-          Conjunt de cartes
-        </label>
-
-        <select id="datasetSelect"
-          class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-800 font-semibold">
-          <option value="glosari.json">Glossari</option>
-          <option value="abreviatures.json">Abreviatures</option>
-        </select>
-      </div>
+<body class="bg-stone-200 p-3 text-slate-800">
+  <div class="max-w-xl mx-auto h-[100dvh] flex flex-col gap-3">
+    <header class="bg-white rounded-xl shadow p-3 text-center">
+      <h1 class="text-2xl font-bold">Cartes de Memòria</h1>
     </header>
 
-    <section class="glass shadow-soft rounded-2xl p-4">
-      <div class="grid grid-cols-2 gap-4 items-start">
+    <section class="bg-white rounded-xl shadow p-3">
+      <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">Conjunt de dades</p>
+      <select id="datasetSelect" class="dataset-select w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 pr-8 text-slate-800 font-medium outline-none focus:ring-2 focus:ring-slate-400">
+        <option>Carregant...</option>
+      </select>
+      <p id="datasetError" class="hidden text-xs text-rose-600 mt-2"></p>
+    </section>
+
+    <section class="bg-white rounded-xl shadow p-3">
+      <div class="flex justify-between items-end gap-3 mb-2">
         <div>
-          <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Progrés</p>
-          <p id="progressText" class="text-lg font-bold">0 apreses de 0</p>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Progrés</p>
+          <p id="progressText" class="font-bold text-slate-800">0 apreses de 0</p>
         </div>
         <div class="text-right">
-          <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Pendents</p>
-          <p id="remainingText" class="text-lg font-bold">0</p>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Pendents</p>
+          <p id="remainingInfo" class="font-bold text-slate-800">0</p>
         </div>
       </div>
-
-      <div class="mt-3 h-3 bg-stone-200 rounded-full overflow-hidden">
-        <div id="progressBar" class="h-full rounded-full bg-emerald-500 transition-all duration-500 ease-out" style="width:0%"></div>
+      <div class="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
+        <div id="progressBar" class="h-full bg-emerald-500 transition-all duration-300" style="width:0%"></div>
       </div>
-
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button id="studyModeBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold">
-          Mode estudi: pendents
-        </button>
-
-        <button id="shuffleBtn" class="btn-press px-3 py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold">
-          Barrejar
-        </button>
-
-        <button id="resetProgressBtn" class="btn-press px-3 py-2 rounded-xl bg-rose-500 text-white text-sm font-semibold">
-          Reiniciar progrés
-        </button>
-
-        <button id="resetOrderBtn" class="btn-press px-3 py-2 rounded-xl bg-slate-200 text-slate-800 text-sm font-semibold">
-          Ordre original
-        </button>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="shuffleBtn" class="bg-amber-500 text-white py-2 rounded-lg font-semibold">Barrejar</button>
+        <button id="resetBtn" class="bg-rose-500 text-white py-2 rounded-lg font-semibold">Reiniciar</button>
       </div>
     </section>
 
     <main class="flex-1 min-h-0">
-      <div class="h-full perspective">
-        <div id="card" class="relative h-full w-full preserve-3d card-animated card-enter cursor-pointer select-none">
+      <div class="card-shell h-full bg-white rounded-xl shadow p-3 overflow-hidden">
+        <div class="h-full perspective-[1200px]">
+          <div id="card" class="relative w-full h-full preserve-3d transition-transform duration-500 ease-out card-fade-enter">
 
-          <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col">
-            <div class="flex items-center justify-between gap-3">
-              <span id="frontLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 1</span>
-              <div class="flex items-center gap-2">
-                <button id="speakFrontBtn"
-                  class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
-                  title="Escoltar" aria-label="Escoltar">🔊</button>
-
-                <button id="learnFrontBtn"
-                  class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
-                  title="Marcar com apresa" aria-label="Marcar com apresa">✅</button>
+            <section class="absolute inset-0 backface-hidden flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
+              <div class="grid grid-cols-[2.6rem_1fr_2.6rem] items-center gap-2">
+                <button id="favoriteFront" class="action-icon" aria-label="Afegir a favorits">★</button>
+                <div id="feedbackFront" class="feedback-slot"></div>
+                <button id="learnFront" class="action-icon" aria-label="Marcar com a apresa">✓</button>
               </div>
-            </div>
 
-            <div class="flex-1 flex flex-col items-center justify-center text-center py-4">
-              <p id="frontIndex" class="text-sm font-semibold text-slate-500 mb-4">Carta 0 de 0</p>
-              <h2 id="frontTerm" class="term-text font-extrabold text-slate-800 text-4xl sm:text-5xl">Carregant...</h2>
-              <p class="mt-6 text-sm text-slate-500">Toca la carta per veure el revers</p>
-            </div>
-          </section>
-
-          <section class="card-face backface-hidden glass shadow-soft p-4 sm:p-5 flex flex-col card-flip">
-            <div class="flex items-center justify-between gap-3">
-              <span id="backSectionTitle" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 2</span>
-              <div class="flex items-center gap-2">
-                <button id="speakBackBtn"
-                  class="btn-press w-11 h-11 rounded-full bg-slate-700 text-white flex items-center justify-center text-lg"
-                  title="Escoltar" aria-label="Escoltar">🔊</button>
-
-                <button id="learnBackBtn"
-                  class="btn-press w-11 h-11 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg"
-                  title="Marcar com apresa" aria-label="Marcar com apresa">✅</button>
+              <div class="flex-1 flex flex-col justify-center items-center text-center px-2">
+                <p class="uppercase text-sm tracking-[0.25em] text-slate-600 mb-3">Terme</p>
+                <h2 id="frontTerm" class="term-front">—</h2>
               </div>
-            </div>
 
-            <div class="mt-4 mb-3">
-              <p id="backTermLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 1</p>
-              <h3 id="backTerm" class="text-xl sm:text-2xl font-bold text-slate-800 mt-1">—</h3>
-            </div>
-
-            <div class="mb-4">
-              <p id="backValueLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 2</p>
-              <p id="definitionText" class="text-base sm:text-lg font-medium text-slate-800 mt-1 leading-relaxed">—</p>
-            </div>
-
-            <div class="mt-auto">
-              <p id="exampleLabel" class="text-[11px] uppercase tracking-[0.25em] text-slate-500">Camp 3</p>
-              <div class="mt-1 rounded-2xl border border-white/60 bg-white/50 p-3">
-                <p id="exampleText" class="italic text-slate-900 font-medium leading-relaxed">—</p>
+              <div class="hint-row">
+                <span class="hint-edge">← llisca</span>
+                <span class="hint-center">toca per girar</span>
+                <span class="hint-edge">llisca →</span>
               </div>
-            </div>
-          </section>
+            </section>
+
+            <section class="absolute inset-0 backface-hidden rotate-y-180 flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
+              <div class="grid grid-cols-[2.6rem_1fr_2.6rem] items-center gap-2">
+                <button id="favoriteBack" class="action-icon" aria-label="Afegir a favorits">★</button>
+                <div id="feedbackBack" class="feedback-slot"></div>
+                <button id="learnBack" class="action-icon" aria-label="Marcar com a apresa">✓</button>
+              </div>
+
+              <div class="flex-1 flex flex-col justify-center min-h-0">
+                <div class="mb-4 text-center">
+                  <p class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Terme</p>
+                  <h3 id="backTerm" class="font-bold text-slate-700"></h3>
+                </div>
+
+                <div class="mb-4 text-center">
+                  <p id="backMainLabel" class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Definició</p>
+                  <div id="backMainValue" class="back-main-standard"></div>
+                </div>
+
+                <div>
+                  <p class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Exemple</p>
+                  <div class="example-box">
+                    <p id="exampleText" class="italic text-slate-900 font-medium"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hint-row">
+                <span class="hint-edge">← llisca</span>
+                <span class="hint-center">toca per girar</span>
+                <span class="hint-edge">llisca →</span>
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </main>
-
-    <footer class="glass shadow-soft rounded-2xl p-3">
-      <div class="grid grid-cols-3 gap-2">
-        <button id="prevBtn" class="btn-press py-3 rounded-xl bg-sky-500 text-white font-semibold">← Anterior</button>
-        <button id="flipBtn" class="btn-press py-3 rounded-xl bg-slate-700 text-white font-semibold">Girar</button>
-        <button id="nextBtn" class="btn-press py-3 rounded-xl bg-sky-700 text-white font-semibold">Següent →</button>
-      </div>
-    </footer>
   </div>
 
   <script>
-    const DATASETS = {
-      "glosari.json": "Glossari",
-      "abreviatures.json": "Abreviatures"
+    const DATASET_INDEX = "datasets.json";
+    const STORAGE_KEY = "flashcards-app-state-v1";
+
+    const state = {
+      datasets: [],
+      datasetFile: "",
+      data: [],
+      deck: [],
+      index: 0,
+      flipped: false,
+      notification: "",
+      activeAction: "",
+      dragStartX: null,
+      dragCurrentX: null
     };
 
-    const APP_PREFIX = "flashcards-dataset-v4";
-
+    const datasetSelect = document.getElementById("datasetSelect");
+    const datasetError = document.getElementById("datasetError");
+    const progressText = document.getElementById("progressText");
+    const remainingInfo = document.getElementById("remainingInfo");
+    const progressBar = document.getElementById("progressBar");
     const card = document.getElementById("card");
     const frontTerm = document.getElementById("frontTerm");
     const backTerm = document.getElementById("backTerm");
-    const definitionText = document.getElementById("definitionText");
+    const backMainLabel = document.getElementById("backMainLabel");
+    const backMainValue = document.getElementById("backMainValue");
     const exampleText = document.getElementById("exampleText");
-    const progressText = document.getElementById("progressText");
-    const remainingText = document.getElementById("remainingText");
-    const progressBar = document.getElementById("progressBar");
-    const frontIndex = document.getElementById("frontIndex");
-    const studyModeBtn = document.getElementById("studyModeBtn");
-    const appTitle = document.getElementById("appTitle");
-    const datasetName = document.getElementById("datasetName");
-    const datasetSelect = document.getElementById("datasetSelect");
-
-    let rawData = [];
-    let data = [];
-
-    let state = {
-      currentIndex: 0,
-      flipped: false,
-      learnedIds: [],
-      studyMode: "pending"
-    };
-
-    let datasetMeta = {
-      fileName: "glosari.json",
-      sourceId: "url:glosari.json",
-      title: "Cartes de Memòria Glossari",
-      frontKey: "terme",
-      backKey: "definicio",
-      extraKey: "exemple"
-    };
-
-    function prettifyLabel(text) {
-      return String(text || "")
-        .replace(/[_-]+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    function getDatasetDisplayName(fileName) {
-      return DATASETS[fileName] || prettifyLabel(fileName.replace(".json", ""));
-    }
-
-    function setTitleFromDataset(fileName) {
-      const niceName = getDatasetDisplayName(fileName);
-      const title = `Cartes de Memòria ${niceName}`;
-      datasetMeta.title = title;
-      datasetMeta.fileName = fileName;
-      datasetMeta.sourceId = `url:${fileName}`;
-      document.title = title;
-      appTitle.textContent = title;
-      datasetName.textContent = fileName;
-    }
-
-    function getObjectArray(json) {
-      if (Array.isArray(json)) return json;
-
-      if (json && typeof json === "object") {
-        for (const key of Object.keys(json)) {
-          if (Array.isArray(json[key])) return json[key];
-        }
-      }
-
-      return null;
-    }
-
-    function inferKeys(array) {
-      const firstValid = array.find(item => item && typeof item === "object" && !Array.isArray(item));
-      if (!firstValid) return null;
-
-      const keys = Object.keys(firstValid).filter(k => k !== "id");
-      if (keys.length < 2) return null;
-
-      return {
-        frontKey: keys[0],
-        backKey: keys[1],
-        extraKey: keys[2] || ""
-      };
-    }
-
-    function normalizeEntry(item, index) {
-      const idValue = item.id ?? item.ID ?? item.Id ?? index + 1;
-
-      return {
-        id: String(idValue),
-        front: String(item[datasetMeta.frontKey] ?? "").trim(),
-        back: String(item[datasetMeta.backKey] ?? "").trim(),
-        extra: datasetMeta.extraKey ? String(item[datasetMeta.extraKey] ?? "").trim() : ""
-      };
-    }
-
-    function getStorageKey() {
-      return `${APP_PREFIX}:${datasetMeta.sourceId}:progress`;
-    }
-
-    function getOrderStorageKey() {
-      return `${APP_PREFIX}:${datasetMeta.sourceId}:order`;
-    }
-
-    function saveProgress() {
-      localStorage.setItem(getStorageKey(), JSON.stringify({
-        learnedIds: state.learnedIds,
-        studyMode: state.studyMode
-      }));
-    }
+    const feedbackFront = document.getElementById("feedbackFront");
+    const feedbackBack = document.getElementById("feedbackBack");
 
     function loadSavedState() {
       try {
-        const raw = localStorage.getItem(getStorageKey());
-        if (!raw) {
-          state.learnedIds = [];
-          state.studyMode = "pending";
-          return;
-        }
-
-        const parsed = JSON.parse(raw);
-        state.learnedIds = Array.isArray(parsed.learnedIds) ? parsed.learnedIds : [];
-        state.studyMode = parsed.studyMode === "all" ? "all" : "pending";
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       } catch {
-        state.learnedIds = [];
-        state.studyMode = "pending";
+        return {};
       }
     }
 
-    function saveOrder() {
-      const ids = data.map(item => item.id);
-      localStorage.setItem(getOrderStorageKey(), JSON.stringify(ids));
-    }
-
-    function restoreOrderIfAvailable() {
-      try {
-        const raw = localStorage.getItem(getOrderStorageKey());
-        if (!raw) return;
-
-        const savedIds = JSON.parse(raw);
-        if (!Array.isArray(savedIds) || savedIds.length !== data.length) return;
-
-        const map = new Map(data.map(item => [item.id, item]));
-        const reordered = savedIds.map(id => map.get(id)).filter(Boolean);
-
-        if (reordered.length === data.length) data = reordered;
-      } catch {}
-    }
-
-    function updateLabels() {
-      const frontLabel = prettifyLabel(datasetMeta.frontKey || "camp 1");
-      const backLabel = prettifyLabel(datasetMeta.backKey || "camp 2");
-      const extraLabel = prettifyLabel(datasetMeta.extraKey || "detall");
-
-      document.getElementById("frontLabel").textContent = frontLabel;
-      document.getElementById("backSectionTitle").textContent = backLabel;
-      document.getElementById("backTermLabel").textContent = frontLabel;
-      document.getElementById("backValueLabel").textContent = backLabel;
-      document.getElementById("exampleLabel").textContent = extraLabel;
-    }
-
-    function getTotalCards() {
-      return data.length;
-    }
-
-    function getActiveCards() {
-      if (state.studyMode === "all") return data;
-      return data.filter(item => !state.learnedIds.includes(item.id));
-    }
-
-    function clampIndex() {
-      const active = getActiveCards();
-      if (active.length === 0) {
-        state.currentIndex = 0;
-        return;
+    function saveState() {
+      const saved = loadSavedState();
+      saved.lastDataset = state.datasetFile;
+      if (state.datasetFile) {
+        saved[state.datasetFile] = {
+          deck: state.deck,
+          index: state.index,
+          flipped: state.flipped
+        };
       }
-
-      if (state.currentIndex >= active.length) state.currentIndex = active.length - 1;
-      if (state.currentIndex < 0) state.currentIndex = 0;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
     }
 
-    function triggerCardEntryAnimation() {
-      card.classList.remove("card-enter");
+    function autoFont(el, maxPx, minPx) {
+      const len = (el.textContent || "").trim().length || 1;
+      const size = Math.max(minPx, maxPx - len * 0.28);
+      el.style.fontSize = size + "px";
+    }
+
+    function currentCard() {
+      if (!state.deck.length) return null;
+      if (state.index < 0) state.index = 0;
+      if (state.index >= state.deck.length) state.index = state.deck.length - 1;
+      return state.deck[state.index] || null;
+    }
+
+    function isAbbreviationDataset(cardData) {
+      return !!(cardData && (cardData.abreviatura ?? cardData.abreviacio ?? cardData.abrev));
+    }
+
+    function getBackMain(cardData) {
+      if (!cardData) return { label: "Definició", value: "" };
+      if (cardData.abreviatura != null) return { label: "Abreviatura", value: cardData.abreviatura };
+      if (cardData.abreviacio != null) return { label: "Abreviatura", value: cardData.abreviacio };
+      if (cardData.abrev != null) return { label: "Abreviatura", value: cardData.abrev };
+      return { label: "Definició", value: cardData.definicio || cardData.definicio || cardData.resposta || "" };
+    }
+
+    function setFeedback(message) {
+      feedbackFront.textContent = message || "";
+      feedbackBack.textContent = message || "";
+    }
+
+    let feedbackTimeout = null;
+    function flashFeedback(message, action) {
+      state.notification = message;
+      state.activeAction = action;
+      setFeedback(message);
+      syncActionIcons();
+      clearTimeout(feedbackTimeout);
+      feedbackTimeout = setTimeout(() => {
+        state.notification = "";
+        state.activeAction = "";
+        setFeedback("");
+        syncActionIcons();
+      }, 900);
+    }
+
+    function syncActionIcons() {
+      const favButtons = [document.getElementById("favoriteFront"), document.getElementById("favoriteBack")];
+      const learnButtons = [document.getElementById("learnFront"), document.getElementById("learnBack")];
+      favButtons.forEach(btn => btn.classList.toggle("active", state.activeAction === "favorite"));
+      learnButtons.forEach(btn => btn.classList.toggle("active", state.activeAction === "learn"));
+    }
+
+    function triggerCardRefreshAnimation() {
+      card.classList.remove("card-fade-enter");
       void card.offsetWidth;
-      card.classList.add("card-enter");
-    }
-
-    function updateStudyModeButton() {
-      if (state.studyMode === "pending") {
-        studyModeBtn.textContent = "Mode estudi: pendents";
-        studyModeBtn.className = "btn-press px-3 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold";
-      } else {
-        studyModeBtn.textContent = "Mode estudi: tots";
-        studyModeBtn.className = "btn-press px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold";
-      }
-    }
-
-    function updateProgressUI() {
-      const total = getTotalCards();
-      const learned = state.learnedIds.filter(id => data.some(item => item.id === id)).length;
-      const pending = Math.max(total - learned, 0);
-      const percent = total > 0 ? (learned / total) * 100 : 0;
-
-      progressText.textContent = `${learned} apreses de ${total}`;
-      remainingText.textContent = pending;
-      progressBar.style.width = `${percent}%`;
-    }
-
-    function renderEmptyState(title, message) {
-      frontIndex.textContent = "Carta 0 de 0";
-      frontTerm.textContent = title;
-      backTerm.textContent = title;
-      definitionText.textContent = message;
-      exampleText.textContent = datasetMeta.fileName || "";
-      card.classList.toggle("card-flip", state.flipped);
-      updateProgressUI();
-      updateStudyModeButton();
-      updateLabels();
+      card.classList.add("card-fade-enter");
     }
 
     function render() {
-      updateProgressUI();
-      updateStudyModeButton();
-      updateLabels();
+      const total = state.data.length;
+      const remaining = state.deck.length;
+      const learned = Math.max(0, total - remaining);
 
-      if (!data.length) {
-        renderEmptyState("Sense dades", "No hi ha cartes carregades.");
+      progressText.textContent = `${learned} apreses de ${total}`;
+      remainingInfo.textContent = remaining;
+      progressBar.style.width = total ? `${(learned / total) * 100}%` : "0%";
+
+      const cardData = currentCard();
+      card.classList.toggle("rotate-y-180", state.flipped);
+      setFeedback(state.notification);
+      syncActionIcons();
+
+      if (!cardData) {
+        frontTerm.textContent = "Enhorabona";
+        backTerm.textContent = "Enhorabona";
+        backMainLabel.textContent = "Estat";
+        backMainValue.textContent = "Ja has acabat";
+        backMainValue.className = "back-main-standard text-center";
+        exampleText.textContent = "Prem Reiniciar";
+        autoFont(frontTerm, 42, 28);
+        autoFont(backTerm, 28, 20);
+        autoFont(backMainValue, 30, 22);
+        autoFont(exampleText, 20, 16);
+        saveState();
         return;
       }
 
-      const active = getActiveCards();
-      clampIndex();
+      const backMain = getBackMain(cardData);
+      const abbreviationMode = isAbbreviationDataset(cardData);
+      frontTerm.textContent = cardData.terme || cardData.pregunta || "—";
+      backTerm.textContent = cardData.terme || cardData.pregunta || "—";
+      backMainLabel.textContent = backMain.label;
+      backMainValue.textContent = backMain.value || "—";
+      exampleText.textContent = cardData.exemple || cardData.exemple_frase || cardData.frase_exemple || "—";
+      backMainValue.className = abbreviationMode ? "back-main-abbr" : "back-main-standard";
 
-      if (!active.length) {
-        renderEmptyState("Enhorabona 🎉", "Ja has completat totes les cartes pendents.");
-        return;
+      autoFont(frontTerm, 42, 26);
+      autoFont(backTerm, 28, 18);
+      if (abbreviationMode) {
+        const termSize = Math.max(22, 28 - ((backTerm.textContent || "").length * 0.22));
+        backTerm.style.fontSize = termSize + "px";
+        backMainValue.style.fontSize = (termSize + 2) + "px";
+      } else {
+        autoFont(backMainValue, 30, 18);
       }
-
-      const current = active[state.currentIndex];
-      const totalVisible = active.length;
-
-      frontIndex.textContent = `Carta ${state.currentIndex + 1} de ${totalVisible}`;
-      frontTerm.textContent = current.front || "Sense contingut";
-      backTerm.textContent = current.front || "Sense contingut";
-      definitionText.textContent = current.back || "Sense contingut";
-      exampleText.textContent = current.extra || "Sense contingut";
-
-      card.classList.toggle("card-flip", state.flipped);
+      autoFont(exampleText, 18, 14);
+      saveState();
     }
 
     function flipCard() {
-      const active = getActiveCards();
-      if (!active.length) return;
+      if (!state.deck.length) return;
       state.flipped = !state.flipped;
       render();
     }
 
     function nextCard() {
-      const active = getActiveCards();
-      if (!active.length) return;
-      state.currentIndex = (state.currentIndex + 1) % active.length;
+      if (!state.deck.length) return;
+      state.index = (state.index + 1) % state.deck.length;
       state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
     function prevCard() {
-      const active = getActiveCards();
-      if (!active.length) return;
-      state.currentIndex = (state.currentIndex - 1 + active.length) % active.length;
+      if (!state.deck.length) return;
+      state.index = (state.index - 1 + state.deck.length) % state.deck.length;
       state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
-    function markLearned() {
-      const active = getActiveCards();
-      if (!active.length) return;
-
-      const current = active[state.currentIndex];
-      if (!state.learnedIds.includes(current.id)) {
-        state.learnedIds.push(current.id);
-        saveProgress();
-      }
-
+    function favoriteCard() {
+      if (!state.deck.length) return;
+      const [cardData] = state.deck.splice(state.index, 1);
+      state.deck.push(cardData);
+      if (state.index >= state.deck.length) state.index = 0;
       state.flipped = false;
-      clampIndex();
+      flashFeedback("Afegida a favorits", "favorite");
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
-    function resetProgress() {
-      state.learnedIds = [];
-      state.currentIndex = 0;
+    function learnCard() {
+      if (!state.deck.length) return;
+      state.deck.splice(state.index, 1);
+      if (state.index >= state.deck.length) state.index = Math.max(0, state.deck.length - 1);
       state.flipped = false;
-      saveProgress();
+      flashFeedback("Carta apresa", "learn");
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
-    function shuffleCards() {
-      for (let i = data.length - 1; i > 0; i--) {
+    function shuffleDeck() {
+      for (let i = state.deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [data[i], data[j]] = [data[j], data[i]];
+        [state.deck[i], state.deck[j]] = [state.deck[j], state.deck[i]];
       }
-      state.currentIndex = 0;
+      state.index = 0;
       state.flipped = false;
-      saveOrder();
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
-    function restoreOriginalOrder() {
-      data = [...rawData];
-      state.currentIndex = 0;
+    function resetDeck() {
+      state.deck = state.data.map(item => ({ ...item }));
+      state.index = 0;
       state.flipped = false;
-      localStorage.removeItem(getOrderStorageKey());
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
-      triggerCardEntryAnimation();
     }
 
-    function toggleStudyMode() {
-      state.studyMode = state.studyMode === "pending" ? "all" : "pending";
-      state.currentIndex = 0;
-      state.flipped = false;
-      saveProgress();
-      render();
-      triggerCardEntryAnimation();
-    }
-
-    function speakCurrentFront() {
-      const active = getActiveCards();
-      if (!active.length) return;
-      const current = active[state.currentIndex];
-
-      if (!current?.front || !("speechSynthesis" in window)) return;
-
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(current.front);
-      utterance.lang = "ca-ES";
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    async function loadDataset(fileName) {
+    async function loadDatasets() {
+      datasetError.classList.add("hidden");
       try {
-        setTitleFromDataset(fileName);
+        const res = await fetch(DATASET_INDEX, { cache: "no-store" });
+        if (!res.ok) throw new Error("No s'ha pogut carregar datasets.json");
+        const datasets = await res.json();
+        state.datasets = Array.isArray(datasets) ? datasets : [];
+      } catch (err) {
+        state.datasets = [{ name: "Glosari", file: "glosari.json" }];
+        datasetError.textContent = "No s'ha pogut llegir datasets.json. S'usa glosari.json com a alternativa.";
+        datasetError.classList.remove("hidden");
+      }
 
-        const response = await fetch(`./${fileName}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      state.datasets.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ca"));
+      datasetSelect.innerHTML = "";
+      state.datasets.forEach(ds => {
+        const opt = document.createElement("option");
+        opt.value = ds.file;
+        opt.textContent = ds.name;
+        datasetSelect.appendChild(opt);
+      });
 
-        const json = await response.json();
-        const array = getObjectArray(json);
+      const saved = loadSavedState();
+      const preferred = saved.lastDataset && state.datasets.some(ds => ds.file === saved.lastDataset)
+        ? saved.lastDataset
+        : (state.datasets[0]?.file || "");
 
-        if (!array || !Array.isArray(array)) {
-          throw new Error("El JSON no conté un array vàlid.");
+      datasetSelect.value = preferred;
+      if (preferred) await loadDataset(preferred);
+    }
+
+    async function loadDataset(file) {
+      state.datasetFile = file;
+      datasetError.classList.add("hidden");
+      try {
+        const res = await fetch(file, { cache: "no-store" });
+        if (!res.ok) throw new Error(`No s'ha pogut carregar ${file}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("El JSON no té format de llista");
+        state.data = data.map(item => ({ ...item }));
+        const saved = loadSavedState()[file];
+        if (saved && Array.isArray(saved.deck) && saved.deck.length <= state.data.length) {
+          state.deck = saved.deck.map(item => ({ ...item }));
+          state.index = Math.min(saved.index || 0, Math.max(0, state.deck.length - 1));
+          state.flipped = !!saved.flipped;
+        } else {
+          state.deck = state.data.map(item => ({ ...item }));
+          state.index = 0;
+          state.flipped = false;
         }
-
-        const inferred = inferKeys(array);
-        if (!inferred) {
-          throw new Error("El JSON necessita almenys 2 camps útils per registre.");
-        }
-
-        datasetMeta.frontKey = inferred.frontKey;
-        datasetMeta.backKey = inferred.backKey;
-        datasetMeta.extraKey = inferred.extraKey;
-
-        data = array.map(normalizeEntry).filter(item => item.front || item.back);
-        rawData = [...data];
-
-        loadSavedState();
-        restoreOrderIfAvailable();
-
-        state.learnedIds = state.learnedIds.filter(id => data.some(item => item.id === id));
-        state.currentIndex = 0;
-        state.flipped = false;
-
+        state.notification = "";
+        state.activeAction = "";
+        triggerCardRefreshAnimation();
         render();
-      } catch (error) {
-        frontIndex.textContent = "Error";
-        frontTerm.textContent = "No s'ha pogut carregar el JSON";
-        backTerm.textContent = "Error";
-        definitionText.textContent = error.message || String(error);
-        exampleText.textContent = fileName;
-        updateProgressUI();
-        updateLabels();
+      } catch (err) {
+        state.data = [];
+        state.deck = [];
+        state.index = 0;
+        state.flipped = false;
+        datasetError.textContent = `${err.message}. Revisa que el fitxer existeixi i sigui a la mateixa carpeta.`;
+        datasetError.classList.remove("hidden");
+        render();
       }
     }
 
-    card.addEventListener("click", flipCard);
+    function getClientX(evt) {
+      if (evt.touches && evt.touches[0]) return evt.touches[0].clientX;
+      if (evt.changedTouches && evt.changedTouches[0]) return evt.changedTouches[0].clientX;
+      return evt.clientX;
+    }
 
-    document.getElementById("flipBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
+    function onPointerStart(evt) {
+      state.dragStartX = getClientX(evt);
+      state.dragCurrentX = state.dragStartX;
+    }
+
+    function onPointerMove(evt) {
+      if (state.dragStartX == null) return;
+      state.dragCurrentX = getClientX(evt);
+    }
+
+    function onPointerEnd(evt) {
+      if (state.dragStartX == null) return;
+      const endX = getClientX(evt);
+      const deltaX = endX - state.dragStartX;
+      state.dragStartX = null;
+      state.dragCurrentX = null;
+      if (Math.abs(deltaX) < 60) return;
+      if (deltaX < 0) nextCard();
+      else prevCard();
+    }
+
+    card.addEventListener("click", (evt) => {
+      if (evt.target.closest("button")) return;
       flipCard();
     });
 
-    document.getElementById("nextBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      nextCard();
+    ["favoriteFront", "favoriteBack"].forEach(id => {
+      document.getElementById(id).addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        favoriteCard();
+      });
     });
 
-    document.getElementById("prevBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      prevCard();
+    ["learnFront", "learnBack"].forEach(id => {
+      document.getElementById(id).addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        learnCard();
+      });
     });
 
-    document.getElementById("learnFrontBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      markLearned();
+    document.getElementById("shuffleBtn").addEventListener("click", shuffleDeck);
+    document.getElementById("resetBtn").addEventListener("click", resetDeck);
+
+    datasetSelect.addEventListener("change", (evt) => {
+      loadDataset(evt.target.value);
     });
 
-    document.getElementById("learnBackBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      markLearned();
+    const pointerTarget = document.querySelector(".card-shell");
+    pointerTarget.addEventListener("touchstart", onPointerStart, { passive: true });
+    pointerTarget.addEventListener("touchmove", onPointerMove, { passive: true });
+    pointerTarget.addEventListener("touchend", onPointerEnd, { passive: true });
+    pointerTarget.addEventListener("mousedown", onPointerStart);
+    pointerTarget.addEventListener("mousemove", onPointerMove);
+    pointerTarget.addEventListener("mouseup", onPointerEnd);
+    pointerTarget.addEventListener("mouseleave", onPointerEnd);
+
+    document.addEventListener("keydown", (evt) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+      if (evt.key === "ArrowRight") { evt.preventDefault(); nextCard(); }
+      else if (evt.key === "ArrowLeft") { evt.preventDefault(); prevCard(); }
+      else if (evt.key === " " || evt.code === "Space") { evt.preventDefault(); flipCard(); }
+      else if (evt.key.toLowerCase() === "f") { evt.preventDefault(); favoriteCard(); }
+      else if (evt.key.toLowerCase() === "a") { evt.preventDefault(); learnCard(); }
     });
 
-    document.getElementById("resetProgressBtn").addEventListener("click", resetProgress);
-    document.getElementById("shuffleBtn").addEventListener("click", shuffleCards);
-    document.getElementById("resetOrderBtn").addEventListener("click", restoreOriginalOrder);
-    document.getElementById("studyModeBtn").addEventListener("click", toggleStudyMode);
-
-    document.getElementById("speakFrontBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      speakCurrentFront();
-    });
-
-    document.getElementById("speakBackBtn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      speakCurrentFront();
-    });
-
-    datasetSelect.addEventListener("change", () => {
-      loadDataset(datasetSelect.value);
-    });
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    card.addEventListener("touchstart", (e) => {
-      touchStartX = e.changedTouches[0].clientX;
-    }, { passive: true });
-
-    card.addEventListener("touchend", (e) => {
-      touchEndX = e.changedTouches[0].clientX;
-      const diff = touchEndX - touchStartX;
-
-      if (Math.abs(diff) > 70) {
-        if (diff < 0) nextCard();
-        else prevCard();
-      }
-    }, { passive: true });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight") nextCard();
-      if (e.key === "ArrowLeft") prevCard();
-      if (e.key === " " || e.key === "Enter") {
-        e.preventDefault();
-        flipCard();
-      }
-    });
-
-    loadDataset(datasetSelect.value);
+    loadDatasets();
   </script>
 </body>
 </html>
