@@ -19,31 +19,31 @@
     .rotate-y-180 { transform: rotateY(180deg); }
 
     .flashcard {
-      padding: 1rem 1rem 3.8rem 1rem;
+      padding: 0.95rem 0.95rem 3.8rem 0.95rem;
     }
 
     .action-icon {
-      width: 2.6rem;
-      height: 2.6rem;
+      width: 2.9rem;
+      height: 2.9rem;
       border-radius: 9999px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(51, 65, 85, 0.9);
+      background: rgba(51, 65, 85, 0.92);
       color: white;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       font-weight: 700;
       user-select: none;
       cursor: pointer;
       transition: color 160ms ease, transform 160ms ease, background 160ms ease;
       border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
-
     .action-icon:active { transform: scale(0.96); }
     .action-icon.active { color: #facc15; }
 
     .feedback-slot {
-      min-height: 1.35rem;
+      min-height: 1.45rem;
       font-size: 0.9rem;
       font-weight: 600;
       color: #475569;
@@ -58,20 +58,20 @@
     .hint-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: end;
       gap: .5rem;
-      margin-top: 1.8rem;
-      padding: 0 .25rem;
+      margin-top: auto;
+      padding: 0 .1rem 0 .1rem;
       color: #475569;
     }
     .hint-row .hint-center {
-      font-size: 0.72rem;
-      opacity: .8;
+      font-size: 0.68rem;
+      opacity: .82;
       text-align: center;
       white-space: nowrap;
     }
     .hint-row .hint-edge {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       white-space: nowrap;
     }
 
@@ -112,17 +112,9 @@
       word-break: break-word;
     }
 
-    .back-main-abbr {
-      text-align: center;
-    }
-
-    .card-shell {
-      touch-action: pan-y;
-    }
-
-    .card-fade-enter {
-      animation: cardFade .22s ease;
-    }
+    .back-main-abbr { text-align: center; }
+    .card-shell { touch-action: pan-y; }
+    .card-fade-enter { animation: cardFade .22s ease; }
 
     @keyframes cardFade {
       from { opacity: .72; transform: translateY(6px); }
@@ -132,11 +124,8 @@
 </head>
 <body class="bg-stone-200 p-3 text-slate-800">
   <div class="max-w-xl mx-auto h-[100dvh] flex flex-col gap-3">
-    <header class="bg-white rounded-xl shadow p-3 text-center">
-      <h1 class="text-2xl font-bold">Cartes de Memòria</h1>
-    </header>
-
-    <section class="bg-white rounded-xl shadow p-3">
+    <section class="bg-white rounded-xl shadow p-4">
+      <h1 class="text-2xl font-bold text-center mb-4">Cartes de Memòria</h1>
       <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">Conjunt de dades</p>
       <select id="datasetSelect" class="dataset-select w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 pr-8 text-slate-800 font-medium outline-none focus:ring-2 focus:ring-slate-400">
         <option>Carregant...</option>
@@ -170,7 +159,7 @@
           <div id="card" class="relative w-full h-full preserve-3d transition-transform duration-500 ease-out card-fade-enter">
 
             <section class="absolute inset-0 backface-hidden flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
-              <div class="grid grid-cols-[2.6rem_1fr_2.6rem] items-center gap-2">
+              <div class="grid grid-cols-[2.9rem_1fr_2.9rem] items-center gap-2">
                 <button id="favoriteFront" class="action-icon" aria-label="Afegir a favorits">★</button>
                 <div id="feedbackFront" class="feedback-slot"></div>
                 <button id="learnFront" class="action-icon" aria-label="Marcar com a apresa">✓</button>
@@ -189,7 +178,7 @@
             </section>
 
             <section class="absolute inset-0 backface-hidden rotate-y-180 flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
-              <div class="grid grid-cols-[2.6rem_1fr_2.6rem] items-center gap-2">
+              <div class="grid grid-cols-[2.9rem_1fr_2.9rem] items-center gap-2">
                 <button id="favoriteBack" class="action-icon" aria-label="Afegir a favorits">★</button>
                 <div id="feedbackBack" class="feedback-slot"></div>
                 <button id="learnBack" class="action-icon" aria-label="Marcar com a apresa">✓</button>
@@ -228,7 +217,7 @@
 
   <script>
     const DATASET_INDEX = "datasets.json";
-    const STORAGE_KEY = "flashcards-app-state-v1";
+    const STORAGE_KEY = "flashcards-app-state-v2";
 
     const state = {
       datasets: [],
@@ -300,7 +289,7 @@
       if (cardData.abreviatura != null) return { label: "Abreviatura", value: cardData.abreviatura };
       if (cardData.abreviacio != null) return { label: "Abreviatura", value: cardData.abreviacio };
       if (cardData.abrev != null) return { label: "Abreviatura", value: cardData.abrev };
-      return { label: "Definició", value: cardData.definicio || cardData.definicio || cardData.resposta || "" };
+      return { label: "Definició", value: cardData.definicio || cardData.resposta || "" };
     }
 
     function setFeedback(message) {
@@ -383,7 +372,7 @@
       } else {
         autoFont(backMainValue, 30, 18);
       }
-      autoFont(exampleText, 18, 14);
+      autoFont(exampleText, 20, 16);
       saveState();
     }
 
@@ -585,7 +574,8 @@
     pointerTarget.addEventListener("mouseleave", onPointerEnd);
 
     document.addEventListener("keydown", (evt) => {
-      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+      const activeTag = document.activeElement && document.activeElement.tagName;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(activeTag)) return;
       if (evt.key === "ArrowRight") { evt.preventDefault(); nextCard(); }
       else if (evt.key === "ArrowLeft") { evt.preventDefault(); prevCard(); }
       else if (evt.key === " " || evt.code === "Space") { evt.preventDefault(); flipCard(); }
