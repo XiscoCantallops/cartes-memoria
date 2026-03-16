@@ -3,1021 +3,587 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joc de Majúscules v10</title>
+  <title>Cartes de Memòria</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --mobile-sentence-size: 0.92rem;
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+    .preserve-3d { transform-style: preserve-3d; }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 { transform: rotateY(180deg); }
+
+    .flashcard {
+      padding: 0.95rem 0.95rem 3.8rem 0.95rem;
     }
 
-    body {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .glass {
-      background: rgba(255,255,255,0.84);
-      backdrop-filter: blur(10px);
-    }
-
-    .letter {
-      display: inline-flex;
+    .action-icon {
+      width: 2.9rem;
+      height: 2.9rem;
+      border-radius: 9999px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 0.8em;
-      padding: 0.05rem 0.11rem;
-      border-radius: 0.42rem;
-      border: 1px solid transparent;
-      white-space: pre;
+      background: rgba(51, 65, 85, 0.92);
+      color: white;
+      font-size: 1.35rem;
+      font-weight: 700;
       user-select: none;
-      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      cursor: pointer;
+      transition: color 160ms ease, transform 160ms ease, background 160ms ease;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .action-icon:active { transform: scale(0.96); }
+    .action-icon.active { color: #facc15; }
+
+    .feedback-slot {
+      min-height: 1.45rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #475569;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 .5rem;
+      line-height: 1.1;
     }
 
-    .letter-clickable { cursor: pointer; }
-    .letter-clickable:hover { transform: translateY(-1px); }
-
-    .letter-start {
-      background: #fef3c7;
-      border-color: rgba(217, 119, 6, 0.30);
+    .hint-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: .5rem;
+      margin-top: auto;
+      padding: 0 .1rem 0 .1rem;
+      color: #475569;
     }
-
-    .letter-selected {
-      background: #bfdbfe;
-      color: #1e3a8a;
-      border-color: rgba(37, 99, 235, 0.35);
-      font-weight: 700;
-    }
-
-    .letter-correct {
-      background: #bbf7d0;
-      color: #14532d;
-      border-color: rgba(22, 101, 52, 0.30);
-      font-weight: 700;
-    }
-
-    .letter-error {
-      background: #fecaca;
-      color: #7f1d1d;
-      border-color: rgba(153, 27, 27, 0.28);
-      font-weight: 700;
-    }
-
-    .letter-missed {
-      background: #fed7aa;
-      color: #9a3412;
-      border-color: rgba(194, 65, 12, 0.28);
-      font-weight: 700;
-    }
-
-    .letter-normal {
-      color: #0f172a;
-    }
-
-    .sentence-word {
-      display: inline-flex;
-      flex-wrap: nowrap;
-      align-items: flex-end;
+    .hint-row .hint-center {
+      font-size: 0.68rem;
+      opacity: .82;
+      text-align: center;
       white-space: nowrap;
-      margin-right: 0.34em;
-      margin-bottom: 0.12em;
-      max-width: 100%;
+    }
+    .hint-row .hint-edge {
+      font-size: 0.95rem;
+      white-space: nowrap;
     }
 
-    .btn-touch {
-      min-height: 40px;
+    .example-box {
+      background: rgba(255,255,255,0.45);
+      border: 1px solid rgba(148,163,184,0.25);
+      border-radius: 0.9rem;
+      padding: 0.85rem 0.95rem;
     }
 
-    @media (max-width: 640px) {
-      .letter {
-        min-width: 0.76em;
-        padding: 0.03rem 0.09rem;
-        border-radius: 0.38rem;
-      }
+    .dataset-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #475569 50%), linear-gradient(135deg, #475569 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
 
-      .sentence-word {
-        margin-right: 0.3em;
-        margin-bottom: 0.12em;
-      }
+    .flashcard-surface {
+      background: linear-gradient(135deg, rgb(214 211 209), rgb(231 229 228), rgb(226 232 240));
+    }
 
-      #sentenceContainer {
-        font-size: var(--mobile-sentence-size);
-        line-height: 1.72;
-        letter-spacing: -0.03em;
-      }
+    .term-front {
+      font-weight: 800;
+      color: rgb(30 41 59);
+      text-wrap: balance;
+      word-break: break-word;
+    }
+
+    .back-main-standard,
+    .back-main-abbr {
+      color: rgb(15 23 42);
+      font-weight: 700;
+      line-height: 1.15;
+      text-wrap: balance;
+      word-break: break-word;
+    }
+
+    .back-main-abbr { text-align: center; }
+    .card-shell { touch-action: pan-y; }
+    .card-fade-enter { animation: cardFade .22s ease; }
+
+    @keyframes cardFade {
+      from { opacity: .72; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-100 via-stone-100 to-amber-50 text-slate-800">
-  <div class="max-w-5xl mx-auto p-1.5 sm:p-3 lg:p-5 min-h-screen">
-    <div class="glass rounded-[1.6rem] shadow-xl border border-white/60 overflow-hidden p-2 sm:p-4 space-y-2.5 min-h-[calc(100vh-0.75rem)] sm:min-h-0 flex flex-col">
+<body class="bg-stone-200 p-3 text-slate-800">
+  <div class="max-w-xl mx-auto h-[100dvh] flex flex-col gap-3">
+    <section class="bg-white rounded-xl shadow p-4">
+      <h1 class="text-2xl font-bold text-center mb-4">Cartes de Memòria</h1>
+      <p class="text-xs uppercase tracking-[0.25em] text-slate-500 mb-2">Conjunt de dades</p>
+      <select id="datasetSelect" class="dataset-select w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 pr-8 text-slate-800 font-medium outline-none focus:ring-2 focus:ring-slate-400">
+        <option>Carregant...</option>
+      </select>
+      <p id="datasetError" class="hidden text-xs text-rose-600 mt-2"></p>
+    </section>
 
-      
-      <section class="rounded-[1.4rem] bg-white/85 border border-slate-200 p-2 sm:p-2.5">
-        <h1 class="text-[13px] sm:text-lg font-black tracking-tight mb-1">Joc de Majúscules</h1>
-
-        <div class="space-y-1.5">
-          <select id="jsonSelect" class="w-full rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 font-medium px-3 py-1 text-[12px] sm:text-[13px] outline-none">
-            <option value="">Carregant datasets...</option>
-          </select>
-
-          <div>
-            <select id="modeSelect" class="w-full rounded-2xl bg-slate-100 border border-slate-200 text-slate-800 font-medium px-3 py-1 text-[12px] sm:text-[13px] outline-none">
-              <option value="training">Entrenament</option>
-              <option value="exam">Examen</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <section class="rounded-[1.4rem] bg-white/85 border border-slate-200 p-2 sm:p-3">
-        <div class="grid grid-cols-4 gap-1.5">
-          <div class="rounded-2xl bg-slate-900 text-white p-1.5 min-h-[46px] sm:min-h-[58px]">
-            <div class="text-slate-300 text-[8.5px] uppercase font-semibold tracking-[0.14em]">Punts</div>
-            <div id="score" class="text-lg sm:text-xl font-extrabold mt-0.5">0</div>
-          </div>
-
-          <div class="rounded-2xl bg-emerald-600 text-white p-1.5 min-h-[46px] sm:min-h-[58px]">
-            <div class="text-emerald-200 text-[8.5px] uppercase font-semibold tracking-[0.14em]">Encerts</div>
-            <div id="hits" class="text-lg sm:text-xl font-extrabold mt-0.5">0</div>
-          </div>
-
-          <div class="rounded-2xl bg-rose-500 text-white p-1.5 min-h-[46px] sm:min-h-[58px]">
-            <div class="text-rose-200 text-[8.5px] uppercase font-semibold tracking-[0.14em]">Errors</div>
-            <div id="misses" class="text-lg sm:text-xl font-extrabold mt-0.5">0</div>
-          </div>
-
-          <div class="rounded-2xl bg-indigo-600 text-white p-1.5 min-h-[46px] sm:min-h-[58px]">
-            <div class="text-indigo-200 text-[8.5px] uppercase font-semibold tracking-[0.14em]">Perfectes</div>
-            <div id="perfectCount" class="text-lg sm:text-xl font-extrabold mt-0.5">0/0</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="rounded-[1.4rem] bg-white/85 border border-slate-200 p-2 sm:p-3">
-        <div class="flex items-center justify-between gap-2 mb-1.5">
-          <div class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.16em] text-slate-500 font-bold">Progrés de frases</div>
-          <div id="progressCounter" class="text-[12px] sm:text-[13px] font-bold text-slate-500">0/0</div>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <div class="flex-1 h-2 sm:h-2.5 rounded-full bg-slate-200 overflow-hidden">
-            <div id="progressBar" class="h-full rounded-full bg-sky-600 transition-all duration-300" style="width:0%"></div>
-          </div>
-          <button id="resetBtn" class="w-7 h-7 shrink-0 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center p-1.5 transition-colors" aria-label="Reinicia" title="Reinicia">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="1 4 1 10 7 10"></polyline>
-              <path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"></path>
-            </svg>
-          </button>
-        </div>
-      </section>
-
-<section class="rounded-[1.4rem] bg-slate-50 border border-slate-200 p-2.5 sm:p-4 lg:p-6 flex-1 flex flex-col min-h-0">
-        <div class="mb-3 sm:mb-4">
-          <p class="text-[8.5px] sm:text-[10px] uppercase tracking-[0.16em] text-slate-500 font-bold">FRASE ACTUAL</p>
-          <div id="sentenceSource" class="mt-1 text-[11px] sm:text-xs text-slate-500 italic min-h-[1rem]"></div>
-        </div>
-
-        <div id="sentenceContainer"
-          class="flex-1 text-[0.95rem] sm:text-[1.5rem] lg:text-[1.9rem] leading-[1.7] sm:leading-[1.8] font-medium bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 min-h-[240px] sm:min-h-[320px] overflow-hidden">
-        </div>
-
-        <div class="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
-          <button id="checkBtn" class="btn-touch w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-2 sm:px-4 py-2.5 font-semibold text-[10px] sm:text-sm whitespace-nowrap transition-colors">
-            <span class="sm:hidden">Comprova</span>
-            <span class="hidden sm:inline">Comprova la frase</span>
-          </button>
-
-          <button id="showAnswerBtn" class="btn-touch w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white px-2 sm:px-4 py-2.5 font-semibold text-[10px] sm:text-sm whitespace-nowrap transition-colors">
-            <span class="sm:hidden">Mostra</span>
-            <span class="hidden sm:inline">Mostra la frase</span>
-          </button>
-
-          <button id="nextBtn" class="btn-touch w-full rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-2 sm:px-4 py-2.5 font-semibold text-[10px] sm:text-sm whitespace-nowrap transition-colors">
-            <span class="sm:hidden">Següent</span>
-            <span class="hidden sm:inline">Següent frase</span>
-          </button>
-        </div>
-
-        <div id="feedback" class="mt-2 rounded-2xl px-3 py-2 bg-slate-100 text-slate-700 font-medium text-[10px] sm:text-xs whitespace-nowrap overflow-hidden">
-          Esperant carregar un arxiu JSON...
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <div id="resultModal" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-slate-200">
-      <div class="flex items-start justify-between gap-4">
+    <section class="bg-white rounded-xl shadow p-3">
+      <div class="flex justify-between items-end gap-3 mb-2">
         <div>
-          <p class="text-xs uppercase tracking-[0.2em] text-slate-500 font-bold">Resultat final</p>
-          <h3 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Has acabat l’examen</h3>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Progrés</p>
+          <p id="progressText" class="font-bold text-slate-800">0 apreses de 0</p>
         </div>
-        <button id="closeModalBtn" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-          Tanca
-        </button>
-      </div>
-
-      <p class="mt-4 text-slate-600">Has acabat el mode examen.</p>
-
-      <div class="mt-6 grid grid-cols-2 gap-3">
-        <div class="rounded-2xl bg-slate-900 text-white p-4">
-          <div class="text-slate-300 text-xs uppercase tracking-[0.16em]">Punts</div>
-          <div id="finalScore" class="text-3xl font-black mt-1">0</div>
-        </div>
-        <div class="rounded-2xl bg-sky-50 border border-sky-100 p-4">
-          <div class="text-sky-700 text-xs uppercase tracking-[0.16em]">Precisió</div>
-          <div id="finalAccuracy" class="text-3xl font-black mt-1 text-sky-900">0%</div>
-        </div>
-        <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
-          <div class="text-emerald-700 text-xs uppercase tracking-[0.16em]">Encerts</div>
-          <div id="finalHits" class="text-3xl font-black mt-1 text-emerald-900">0</div>
-        </div>
-        <div class="rounded-2xl bg-rose-50 border border-rose-100 p-4">
-          <div class="text-rose-700 text-xs uppercase tracking-[0.16em]">Errors</div>
-          <div id="finalMisses" class="text-3xl font-black mt-1 text-rose-900">0</div>
+        <div class="text-right">
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Pendents</p>
+          <p id="remainingInfo" class="font-bold text-slate-800">0</p>
         </div>
       </div>
+      <div class="h-2 bg-stone-200 rounded-full overflow-hidden mb-3">
+        <div id="progressBar" class="h-full bg-emerald-500 transition-all duration-300" style="width:0%"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="shuffleBtn" class="bg-amber-500 text-white py-2 rounded-lg font-semibold">Barrejar</button>
+        <button id="resetBtn" class="bg-rose-500 text-white py-2 rounded-lg font-semibold">Reiniciar</button>
+      </div>
+    </section>
 
-      <button id="playAgainBtn" class="mt-6 w-full rounded-2xl bg-slate-900 hover:bg-slate-950 text-white px-4 py-3 font-semibold">
-        Torna a jugar
-      </button>
-    </div>
+    <main class="flex-1 min-h-0">
+      <div class="card-shell h-full bg-white rounded-xl shadow p-3 overflow-hidden">
+        <div class="h-full perspective-[1200px]">
+          <div id="card" class="relative w-full h-full preserve-3d transition-transform duration-500 ease-out card-fade-enter">
+
+            <section class="absolute inset-0 backface-hidden flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
+              <div class="grid grid-cols-[2.9rem_1fr_2.9rem] items-center gap-2">
+                <button id="favoriteFront" class="action-icon" aria-label="Afegir a favorits">★</button>
+                <div id="feedbackFront" class="feedback-slot"></div>
+                <button id="learnFront" class="action-icon" aria-label="Marcar com a apresa">✓</button>
+              </div>
+
+              <div class="flex-1 flex flex-col justify-center items-center text-center px-2">
+                <p class="uppercase text-sm tracking-[0.25em] text-slate-600 mb-3">Terme</p>
+                <h2 id="frontTerm" class="term-front">—</h2>
+              </div>
+
+              <div class="hint-row">
+                <span class="hint-edge">← llisca</span>
+                <span class="hint-center">toca per girar</span>
+                <span class="hint-edge">llisca →</span>
+              </div>
+            </section>
+
+            <section class="absolute inset-0 backface-hidden rotate-y-180 flashcard-surface rounded-[1.25rem] flashcard flex flex-col">
+              <div class="grid grid-cols-[2.9rem_1fr_2.9rem] items-center gap-2">
+                <button id="favoriteBack" class="action-icon" aria-label="Afegir a favorits">★</button>
+                <div id="feedbackBack" class="feedback-slot"></div>
+                <button id="learnBack" class="action-icon" aria-label="Marcar com a apresa">✓</button>
+              </div>
+
+              <div class="flex-1 flex flex-col justify-center min-h-0">
+                <div class="mb-4 text-center">
+                  <p class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Terme</p>
+                  <h3 id="backTerm" class="font-bold text-slate-700"></h3>
+                </div>
+
+                <div class="mb-4 text-center">
+                  <p id="backMainLabel" class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Definició</p>
+                  <div id="backMainValue" class="back-main-standard"></div>
+                </div>
+
+                <div>
+                  <p class="uppercase text-xs tracking-[0.25em] text-slate-600 mb-2">Exemple</p>
+                  <div class="example-box">
+                    <p id="exampleText" class="italic text-slate-900 font-medium"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hint-row">
+                <span class="hint-edge">← llisca</span>
+                <span class="hint-center">toca per girar</span>
+                <span class="hint-edge">llisca →</span>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
-    const DATASETS_FILE = "datasets.json";
-    const SETTINGS_KEY = "joc-majuscules-v10-settings";
-    const STORAGE_PREFIX = "joc-majuscules-v10::";
+    const DATASET_INDEX = "datasets.json";
+    const STORAGE_KEY = "flashcards-app-state-v2";
 
-    let datasetsList = [];
-    let dataset = [];
-    let currentJsonFile = "";
+    const state = {
+      datasets: [],
+      datasetFile: "",
+      data: [],
+      deck: [],
+      index: 0,
+      flipped: false,
+      notification: "",
+      activeAction: "",
+      dragStartX: null,
+      dragCurrentX: null
+    };
 
-    let game = createEmptyGame();
+    const datasetSelect = document.getElementById("datasetSelect");
+    const datasetError = document.getElementById("datasetError");
+    const progressText = document.getElementById("progressText");
+    const remainingInfo = document.getElementById("remainingInfo");
+    const progressBar = document.getElementById("progressBar");
+    const card = document.getElementById("card");
+    const frontTerm = document.getElementById("frontTerm");
+    const backTerm = document.getElementById("backTerm");
+    const backMainLabel = document.getElementById("backMainLabel");
+    const backMainValue = document.getElementById("backMainValue");
+    const exampleText = document.getElementById("exampleText");
+    const feedbackFront = document.getElementById("feedbackFront");
+    const feedbackBack = document.getElementById("feedbackBack");
 
-    function createEmptyGame() {
-      return {
-        currentIndex: 0,
-        score: 0,
-        hits: 0,
-        misses: 0,
-        perfect: 0,
-        completed: 0,
-        completedMap: [],
-        examMode: false,
-        foundMap: [],
-        wrongMap: [],
-        selectedMap: [],
-        checkedMap: [],
-        checkedSentence: false,
-        revealed: false
-      };
-    }
-
-    const $ = (id) => document.getElementById(id);
-
-    const scoreEl = $("score");
-    const hitsEl = $("hits");
-    const missesEl = $("misses");
-    const perfectCountEl = $("perfectCount");
-    const modeSelectEl = $("modeSelect");
-    const jsonSelectEl = $("jsonSelect");
-    const progressCounterEl = $("progressCounter");
-    const progressBarEl = $("progressBar");
-        const sentenceSourceEl = $("sentenceSource");
-    const sentenceContainerEl = $("sentenceContainer");
-    const feedbackEl = $("feedback");
-    const resultModalEl = $("resultModal");
-
-    function currentDatasetMeta() {
-      return datasetsList.find(item => item.file === currentJsonFile) || null;
-    }
-
-    function getStorageKey(file = currentJsonFile || "sense-fitxer") {
-      return `${STORAGE_PREFIX}${file}`;
-    }
-
-    function saveSettings() {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ currentJsonFile }));
-    }
-
-    function loadSettings() {
+    function loadSavedState() {
       try {
-        const raw = localStorage.getItem(SETTINGS_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        if (typeof parsed.currentJsonFile === "string") {
-          currentJsonFile = parsed.currentJsonFile;
-        }
-      } catch {}
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
     }
 
     function saveState() {
-      if (!currentJsonFile) return;
-      localStorage.setItem(getStorageKey(), JSON.stringify({ game }));
-      saveSettings();
-    }
-
-    function loadState() {
-      if (!currentJsonFile) {
-        game = createEmptyGame();
-        return false;
-      }
-
-      try {
-        const raw = localStorage.getItem(getStorageKey());
-        if (!raw) {
-          game = createEmptyGame();
-          return false;
-        }
-
-        const parsed = JSON.parse(raw);
-        game = {
-          currentIndex: Number(parsed.game?.currentIndex || 0),
-          score: Number(parsed.game?.score || 0),
-          hits: Number(parsed.game?.hits || 0),
-          misses: Number(parsed.game?.misses || 0),
-          perfect: Number(parsed.game?.perfect || 0),
-          completed: Number(parsed.game?.completed || 0),
-          completedMap: Array.isArray(parsed.game?.completedMap) ? parsed.game.completedMap : [],
-          examMode: !!parsed.game?.examMode,
-          foundMap: Array.isArray(parsed.game?.foundMap) ? parsed.game.foundMap : [],
-          wrongMap: Array.isArray(parsed.game?.wrongMap) ? parsed.game.wrongMap : [],
-          selectedMap: Array.isArray(parsed.game?.selectedMap) ? parsed.game.selectedMap : [],
-          checkedMap: Array.isArray(parsed.game?.checkedMap) ? parsed.game.checkedMap : [],
-          checkedSentence: !!parsed.game?.checkedSentence,
-          revealed: !!parsed.game?.revealed
+      const saved = loadSavedState();
+      saved.lastDataset = state.datasetFile;
+      if (state.datasetFile) {
+        saved[state.datasetFile] = {
+          deck: state.deck,
+          index: state.index,
+          flipped: state.flipped
         };
-        return true;
-      } catch {
-        game = createEmptyGame();
-        return false;
       }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
     }
 
-    function sanitizeDataset(input) {
-      let arr = input;
-
-      if (!Array.isArray(arr) && arr && typeof arr === "object") {
-        for (const key of Object.keys(arr)) {
-          if (Array.isArray(arr[key])) {
-            arr = arr[key];
-            break;
-          }
-        }
-      }
-
-      if (!Array.isArray(arr)) {
-        throw new Error("El JSON ha de ser un array o contenir un array.");
-      }
-
-      const clean = arr.map((item, i) => ({
-        id: String(item.id ?? i + 1),
-        font: String(item.font ?? item.fuente ?? item.font_pdf ?? item.fontPdf ?? "").trim(),
-        pregunta: String(item.pregunta ?? item.question ?? item.texto ?? "").trim(),
-        respuesta: String(item.respuesta ?? item.answer ?? "").trim()
-      })).filter(item => item.pregunta && item.respuesta);
-
-      if (!clean.length) {
-        throw new Error("El JSON no conté registres vàlids amb 'pregunta' i 'respuesta'.");
-      }
-
-      return clean;
+    function autoFont(el, maxPx, minPx) {
+      const len = (el.textContent || "").trim().length || 1;
+      const size = Math.max(minPx, maxPx - len * 0.28);
+      el.style.fontSize = size + "px";
     }
 
-    function sanitizeDatasetsConfig(input) {
-      let arr = input;
-
-      if (!Array.isArray(arr) && input && typeof input === "object") {
-        arr = input.datasets || input.files || input.items || [];
-      }
-
-      if (!Array.isArray(arr)) {
-        throw new Error("datasets.json ha de ser un array.");
-      }
-
-      const clean = arr.map((item, index) => {
-        if (typeof item === "string") {
-          return {
-            label: item,
-            file: item
-          };
-        }
-
-        return {
-          label: String(item.label ?? item.nom ?? item.name ?? item.file ?? item.path ?? `Dataset ${index + 1}`).trim(),
-          file: String(item.file ?? item.path ?? item.url ?? "").trim()
-        };
-      }).filter(item => item.file);
-
-      if (!clean.length) {
-        throw new Error("datasets.json no conté fitxers vàlids.");
-      }
-
-      return clean;
+    function currentCard() {
+      if (!state.deck.length) return null;
+      if (state.index < 0) state.index = 0;
+      if (state.index >= state.deck.length) state.index = state.deck.length - 1;
+      return state.deck[state.index] || null;
     }
 
-    function isLetter(char) {
-      return !!char && char.toLowerCase() !== char.toUpperCase();
+    function isAbbreviationDataset(cardData) {
+      return !!(cardData && (cardData.abreviatura ?? cardData.abreviacio ?? cardData.abrev));
     }
 
-    function isWordStart(text, index) {
-      const char = text[index] ?? "";
-      if (!isLetter(char)) return false;
-      if (index === 0) return true;
-      const prev = text[index - 1] ?? " ";
-      return !isLetter(prev);
+    function getBackMain(cardData) {
+      if (!cardData) return { label: "Definició", value: "" };
+      if (cardData.abreviatura != null) return { label: "Abreviatura", value: cardData.abreviatura };
+      if (cardData.abreviacio != null) return { label: "Abreviatura", value: cardData.abreviacio };
+      if (cardData.abrev != null) return { label: "Abreviatura", value: cardData.abrev };
+      return { label: "Definició", value: cardData.definicio || cardData.resposta || "" };
     }
 
-    function shouldBeUpper(index, item) {
-      const qChar = item.pregunta[index] ?? "";
-      const rChar = item.respuesta[index] ?? "";
-      return isLetter(rChar) && rChar === rChar.toUpperCase() && qChar !== rChar;
+    function setFeedback(message) {
+      feedbackFront.textContent = message || "";
+      feedbackBack.textContent = message || "";
     }
 
-    function makeBooleanGrid(source) {
-      return dataset.map((item, index) => {
-        const size = Math.max(item.pregunta.length, item.respuesta.length);
-        const existing = Array.isArray(source?.[index]) ? source[index] : [];
-        const row = new Array(size).fill(false);
-        for (let i = 0; i < size; i++) row[i] = !!existing[i];
-        return row;
-      });
+    let feedbackTimeout = null;
+    function flashFeedback(message, action) {
+      state.notification = message;
+      state.activeAction = action;
+      setFeedback(message);
+      syncActionIcons();
+      clearTimeout(feedbackTimeout);
+      feedbackTimeout = setTimeout(() => {
+        state.notification = "";
+        state.activeAction = "";
+        setFeedback("");
+        syncActionIcons();
+      }, 900);
     }
 
-    function buildMaps() {
-      game.foundMap = makeBooleanGrid();
-      game.wrongMap = makeBooleanGrid();
-      game.selectedMap = makeBooleanGrid();
-      game.checkedMap = dataset.map(() => false);
-      game.completedMap = dataset.map(() => false);
-      game.completed = 0;
+    function syncActionIcons() {
+      const favButtons = [document.getElementById("favoriteFront"), document.getElementById("favoriteBack")];
+      const learnButtons = [document.getElementById("learnFront"), document.getElementById("learnBack")];
+      favButtons.forEach(btn => btn.classList.toggle("active", state.activeAction === "favorite"));
+      learnButtons.forEach(btn => btn.classList.toggle("active", state.activeAction === "learn"));
     }
 
-    function ensureMapsIntegrity() {
-      game.foundMap = makeBooleanGrid(game.foundMap);
-      game.wrongMap = makeBooleanGrid(game.wrongMap);
-      game.selectedMap = makeBooleanGrid(game.selectedMap);
-
-      if (!Array.isArray(game.checkedMap) || game.checkedMap.length !== dataset.length) {
-        game.checkedMap = dataset.map(() => false);
-      } else {
-        game.checkedMap = dataset.map((_, index) => !!game.checkedMap[index]);
-      }
-
-      if (!Array.isArray(game.completedMap) || game.completedMap.length !== dataset.length) {
-        game.completedMap = dataset.map(() => false);
-      } else {
-        game.completedMap = dataset.map((_, index) => !!game.completedMap[index]);
-      }
-
-      game.completed = game.completedMap.filter(Boolean).length;
-    }
-
-    function getCurrentItem() {
-      return dataset[game.currentIndex];
-    }
-
-    function getSentenceStarts(index) {
-      const item = dataset[index];
-      if (!item) return [];
-      const starts = [];
-      for (let i = 0; i < item.pregunta.length; i++) {
-        if (isWordStart(item.pregunta, i)) starts.push(i);
-      }
-      return starts;
-    }
-
-    function getSentenceTargets(index) {
-      const item = dataset[index];
-      if (!item) return [];
-      return getSentenceStarts(index).filter(i => shouldBeUpper(i, item));
-    }
-
-    function getSentenceFoundCount(index) {
-      const targets = getSentenceTargets(index);
-      const row = game.foundMap[index] || [];
-      return targets.filter(i => row[i]).length;
-    }
-
-    function getSentenceWrongCount(index) {
-      const starts = getSentenceStarts(index);
-      const row = game.wrongMap[index] || [];
-      return starts.filter(i => row[i]).length;
-    }
-
-    function isSentencePerfect(index) {
-      const total = getSentenceTargets(index).length;
-      const found = getSentenceFoundCount(index);
-      const wrongs = getSentenceWrongCount(index);
-      return found === total && wrongs === 0;
-    }
-
-    function updateHUD() {
-      scoreEl.textContent = game.score;
-      hitsEl.textContent = game.hits;
-      missesEl.textContent = game.misses;
-      perfectCountEl.textContent = `${game.perfect}/${game.completed}`;
-      modeSelectEl.value = game.examMode ? "exam" : "training";
-      jsonSelectEl.value = currentJsonFile;
-
-      const total = dataset.length;
-      const current = total ? Math.min(game.currentIndex + 1, total) : 0;
-      progressCounterEl.textContent = `${current}/${total}`;
-      progressBarEl.style.width = total ? `${(current / total) * 100}%` : "0%";
-    }
-
-    function showFeedback(text, type = "info") {
-      const styles = {
-        info: "bg-slate-100 text-slate-700",
-        success: "bg-emerald-100 text-emerald-900",
-        error: "bg-rose-100 text-rose-900",
-        warn: "bg-amber-100 text-amber-900"
-      };
-      feedbackEl.className = `mt-4 rounded-2xl px-4 py-3 font-medium text-xs sm:text-base break-words ${styles[type] || styles.info}`;
-      feedbackEl.textContent = text;
-    }
-
-    function getSentenceAttemptSummary(index) {
-      const starts = getSentenceStarts(index);
-      const foundRow = game.foundMap[index] || [];
-      const wrongRow = game.wrongMap[index] || [];
-      const selectedRow = game.selectedMap[index] || [];
-
-      let correct = 0;
-      let errors = 0;
-      let selected = 0;
-      const targets = getSentenceTargets(index).length;
-
-      for (const startIndex of starts) {
-        if (foundRow[startIndex]) correct += 1;
-        if (wrongRow[startIndex]) errors += 1;
-        if (selectedRow[startIndex]) selected += 1;
-      }
-
-      return {
-        correct,
-        errors,
-        total: correct + errors,
-        score: correct - errors,
-        selected,
-        targets
-      };
-    }
-
-    function getResultMessage(index = game.currentIndex) {
-      const summary = getSentenceAttemptSummary(index);
-      const metrics = `${summary.correct}/${summary.targets} encerts · ${summary.errors} errors · ${summary.score} punts`;
-
-      if (game.examMode && !game.checkedSentence && !game.revealed) {
-        return "Frase sense revisar";
-      }
-
-      if (summary.total === 0) {
-        return game.examMode ? "Frase sense revisar" : "Selecciona per començar.";
-      }
-
-      if (summary.errors > 0) {
-        return `Amb errors · ${metrics}`;
-      }
-
-      return `Correcta · ${metrics}`;
-    }
-
-    function getNextButtonClass(enabled) {
-      return enabled
-        ? "btn-touch w-full rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-2 sm:px-4 py-2.5 font-semibold text-[10px] sm:text-sm whitespace-nowrap transition-colors"
-        : "btn-touch w-full rounded-xl bg-slate-300 text-slate-500 px-2 sm:px-4 py-2.5 font-semibold text-[10px] sm:text-sm whitespace-nowrap cursor-not-allowed";
-    }
-
-    function updateButtons() {
-      const hasData = dataset.length > 0;
-      $("checkBtn").disabled = !hasData;
-      $("showAnswerBtn").disabled = !hasData;
-
-      const allowNextTraining = hasData;
-      const allowNextExam = hasData && (game.checkedSentence || game.revealed);
-      const allowNext = game.examMode ? allowNextExam : allowNextTraining;
-
-      $("nextBtn").disabled = !allowNext;
-      $("nextBtn").className = getNextButtonClass(allowNext);
-    }
-
-    function renderSentence() {
-      sentenceContainerEl.innerHTML = "";
-
-      if (!dataset.length) {
-        sentenceSourceEl.textContent = "";
-        sentenceContainerEl.textContent = "";
-        updateHUD();
-        updateButtons();
-        return;
-      }
-
-      const item = getCurrentItem();
-      const starts = new Set(getSentenceStarts(game.currentIndex));
-      const foundRow = game.foundMap[game.currentIndex] || [];
-      const wrongRow = game.wrongMap[game.currentIndex] || [];
-      const selectedRow = game.selectedMap[game.currentIndex] || [];
-
-      sentenceSourceEl.textContent = item.font || "";
-
-      let wordEl = null;
-
-      function flushWord() {
-        if (wordEl) {
-          sentenceContainerEl.appendChild(wordEl);
-          wordEl = null;
-        }
-      }
-
-      for (let i = 0; i < item.pregunta.length; i++) {
-        const qChar = item.pregunta[i];
-        if (qChar === " ") {
-          flushWord();
-          continue;
-        }
-
-        if (!wordEl) {
-          wordEl = document.createElement("span");
-          wordEl.className = "sentence-word";
-        }
-
-        const rChar = item.respuesta[i] ?? qChar;
-        const isStart = starts.has(i);
-        const isTarget = shouldBeUpper(i, item);
-        const isFound = !!foundRow[i];
-        const isWrong = !!wrongRow[i];
-        const isSelected = !!selectedRow[i];
-        const isMissedReveal = game.revealed && isTarget && !isFound;
-
-        const span = document.createElement("span");
-        span.className = "letter";
-
-        if (isStart) {
-          span.classList.add("letter-clickable", "letter-start");
-          span.addEventListener("click", () => handleStartClick(i));
-        } else {
-          span.classList.add("letter-normal");
-        }
-
-        span.textContent = game.revealed ? rChar : qChar;
-
-        if (game.examMode) {
-          if (game.checkedSentence) {
-            if (isFound && isTarget) {
-              span.textContent = rChar;
-              span.classList.remove("letter-start");
-              span.classList.add("letter-correct");
-            } else if (isWrong) {
-              span.classList.remove("letter-start");
-              span.classList.add("letter-error");
-            }
-          } else if (isSelected) {
-            if (isWrong) {
-              span.classList.remove("letter-start");
-              span.classList.add("letter-error");
-            } else {
-              span.classList.remove("letter-start");
-              span.classList.add("letter-selected");
-            }
-          }
-        } else {
-          if (isFound && isTarget) {
-            span.textContent = rChar;
-            span.classList.remove("letter-start");
-            span.classList.add("letter-correct");
-          } else if (isWrong) {
-            span.classList.remove("letter-start");
-            span.classList.add("letter-error");
-          }
-        }
-
-        if (game.revealed) {
-          span.textContent = rChar;
-          if (isMissedReveal) {
-            span.classList.remove("letter-start", "letter-selected", "letter-correct", "letter-error");
-            span.classList.add("letter-missed");
-          }
-        }
-
-        wordEl.appendChild(span);
-      }
-
-      flushWord();
-
-      updateHUD();
-      updateButtons();
-
-      if (game.revealed) {
-        showFeedback(item.respuesta, "warn");
-      } else {
-        const summary = getSentenceAttemptSummary(game.currentIndex);
-        if (game.examMode && !game.checkedSentence) {
-          showFeedback("Frase sense revisar", "info");
-        } else if (summary.total > 0) {
-          showFeedback(getResultMessage(game.currentIndex), summary.errors > 0 ? "error" : "success");
-        } else if (game.examMode) {
-          showFeedback("Frase sense revisar", "info");
-        } else {
-          showFeedback("Selecciona una casella per començar.", "info");
-        }
-      }
+    function triggerCardRefreshAnimation() {
+      card.classList.remove("card-fade-enter");
+      void card.offsetWidth;
+      card.classList.add("card-fade-enter");
     }
 
     function render() {
-      renderSentence();
-    }
+      const total = state.data.length;
+      const remaining = state.deck.length;
+      const learned = Math.max(0, total - remaining);
 
-    function handleTrainingClick(index) {
-      const item = getCurrentItem();
-      const foundRow = game.foundMap[game.currentIndex];
-      const wrongRow = game.wrongMap[game.currentIndex];
+      progressText.textContent = `${learned} apreses de ${total}`;
+      remainingInfo.textContent = remaining;
+      progressBar.style.width = total ? `${(learned / total) * 100}%` : "0%";
 
-      if (foundRow[index] || wrongRow[index]) return;
+      const cardData = currentCard();
+      card.classList.toggle("rotate-y-180", state.flipped);
+      setFeedback(state.notification);
+      syncActionIcons();
 
-      if (shouldBeUpper(index, item)) {
-        foundRow[index] = true;
-        game.score += 1;
-        game.hits += 1;
+      if (!cardData) {
+        frontTerm.textContent = "Enhorabona";
+        backTerm.textContent = "Enhorabona";
+        backMainLabel.textContent = "Estat";
+        backMainValue.textContent = "Ja has acabat";
+        backMainValue.className = "back-main-standard text-center";
+        exampleText.textContent = "Prem Reiniciar";
+        autoFont(frontTerm, 42, 28);
+        autoFont(backTerm, 28, 20);
+        autoFont(backMainValue, 30, 22);
+        autoFont(exampleText, 20, 16);
+        saveState();
+        return;
+      }
+
+      const backMain = getBackMain(cardData);
+      const abbreviationMode = isAbbreviationDataset(cardData);
+      frontTerm.textContent = cardData.terme || cardData.pregunta || "—";
+      backTerm.textContent = cardData.terme || cardData.pregunta || "—";
+      backMainLabel.textContent = backMain.label;
+      backMainValue.textContent = backMain.value || "—";
+      exampleText.textContent = cardData.exemple || cardData.exemple_frase || cardData.frase_exemple || "—";
+      backMainValue.className = abbreviationMode ? "back-main-abbr" : "back-main-standard";
+
+      autoFont(frontTerm, 42, 26);
+      autoFont(backTerm, 28, 18);
+      if (abbreviationMode) {
+        const termSize = Math.max(22, 28 - ((backTerm.textContent || "").length * 0.22));
+        backTerm.style.fontSize = termSize + "px";
+        backMainValue.style.fontSize = (termSize + 2) + "px";
       } else {
-        wrongRow[index] = true;
-        game.score -= 1;
-        game.misses += 1;
+        autoFont(backMainValue, 30, 18);
       }
-
-      saveState();
-      render();
-    }
-
-    function handleExamClick(index) {
-      if (game.checkedSentence || game.revealed) return;
-
-      const selectedRow = game.selectedMap[game.currentIndex];
-      const wrongRow = game.wrongMap[game.currentIndex];
-
-      selectedRow[index] = !selectedRow[index];
-      wrongRow[index] = false;
-
-      saveState();
-      render();
-    }
-
-    function handleStartClick(index) {
-      if (!dataset.length) return;
-      if (game.examMode) {
-        handleExamClick(index);
-      } else {
-        handleTrainingClick(index);
-      }
-    }
-
-    function checkSentence() {
-      if (!dataset.length) return;
-
-      if (game.examMode) {
-        if (game.checkedSentence) {
-          render();
-          return;
-        }
-
-        const item = getCurrentItem();
-        const starts = getSentenceStarts(game.currentIndex);
-        const selectedRow = game.selectedMap[game.currentIndex];
-        const foundRow = game.foundMap[game.currentIndex];
-        const wrongRow = game.wrongMap[game.currentIndex];
-
-        for (const index of starts) {
-          foundRow[index] = false;
-          wrongRow[index] = false;
-        }
-
-        for (const index of starts) {
-          if (!selectedRow[index]) continue;
-
-          if (shouldBeUpper(index, item)) {
-            foundRow[index] = true;
-            game.score += 1;
-            game.hits += 1;
-          } else {
-            wrongRow[index] = true;
-            game.score -= 1;
-            game.misses += 1;
-          }
-        }
-
-        game.checkedSentence = true;
-        game.checkedMap[game.currentIndex] = true;
-        saveState();
-        render();
-        return;
-      }
-
-      render();
+      autoFont(exampleText, 20, 16);
       saveState();
     }
 
-    function revealAnswer() {
-      if (!dataset.length) return;
-      game.revealed = true;
-      game.checkedSentence = false;
-      saveState();
+    function flipCard() {
+      if (!state.deck.length) return;
+      state.flipped = !state.flipped;
       render();
     }
 
-    function goNext() {
-      if (!dataset.length) return;
-
-      if (game.examMode && !game.checkedSentence && !game.revealed) {
-        showFeedback("Primer has de prémer “Comprova la frase”.", "error");
-        return;
-      }
-
-      if (!game.completedMap[game.currentIndex]) {
-        game.completedMap[game.currentIndex] = true;
-        game.completed = game.completedMap.filter(Boolean).length;
-        if (isSentencePerfect(game.currentIndex)) {
-          game.perfect += 1;
-        }
-      }
-
-      if (game.currentIndex >= dataset.length - 1) {
-        if (game.examMode) {
-          openResultModal();
-        }
-        saveState();
-        render();
-        return;
-      }
-
-      game.currentIndex += 1;
-      game.revealed = false;
-      game.checkedSentence = !!game.checkedMap[game.currentIndex];
-      saveState();
+    function nextCard() {
+      if (!state.deck.length) return;
+      state.index = (state.index + 1) % state.deck.length;
+      state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
     }
 
-    function resetGame() {
-      if (!dataset.length) {
-        game = createEmptyGame();
-        render();
-        return;
-      }
-
-      game = createEmptyGame();
-      game.examMode = modeSelectEl.value === "exam";
-      buildMaps();
-      saveState();
+    function prevCard() {
+      if (!state.deck.length) return;
+      state.index = (state.index - 1 + state.deck.length) % state.deck.length;
+      state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
       render();
     }
 
-    function changeMode(value) {
-      game = createEmptyGame();
-      game.examMode = value === "exam";
-      buildMaps();
-      saveState();
+    function favoriteCard() {
+      if (!state.deck.length) return;
+      const [cardData] = state.deck.splice(state.index, 1);
+      state.deck.push(cardData);
+      if (state.index >= state.deck.length) state.index = 0;
+      state.flipped = false;
+      flashFeedback("Afegida a favorits", "favorite");
+      triggerCardRefreshAnimation();
       render();
     }
 
-    function openResultModal() {
-      const totalAttempts = game.hits + game.misses;
-      const accuracy = totalAttempts > 0 ? Math.round((game.hits / totalAttempts) * 100) : 100;
-
-      $("finalScore").textContent = game.score;
-      $("finalHits").textContent = game.hits;
-      $("finalMisses").textContent = game.misses;
-      $("finalAccuracy").textContent = `${accuracy}%`;
-
-      resultModalEl.classList.remove("hidden");
-      resultModalEl.classList.add("flex");
+    function learnCard() {
+      if (!state.deck.length) return;
+      state.deck.splice(state.index, 1);
+      if (state.index >= state.deck.length) state.index = Math.max(0, state.deck.length - 1);
+      state.flipped = false;
+      flashFeedback("Carta apresa", "learn");
+      triggerCardRefreshAnimation();
+      render();
     }
 
-    function closeResultModal() {
-      resultModalEl.classList.add("hidden");
-      resultModalEl.classList.remove("flex");
+    function shuffleDeck() {
+      for (let i = state.deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [state.deck[i], state.deck[j]] = [state.deck[j], state.deck[i]];
+      }
+      state.index = 0;
+      state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
+      render();
     }
 
-    async function loadDatasetsList() {
-      const response = await fetch(`./${DATASETS_FILE}`, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`No s'ha pogut carregar ${DATASETS_FILE} (HTTP ${response.status}).`);
-      }
-
-      const json = await response.json();
-      datasetsList = sanitizeDatasetsConfig(json);
-
-      jsonSelectEl.innerHTML = "";
-
-      for (const item of datasetsList) {
-        const option = document.createElement("option");
-        option.value = item.file;
-        option.textContent = item.label;
-        jsonSelectEl.appendChild(option);
-      }
-
-      if (!currentJsonFile || !datasetsList.some(item => item.file === currentJsonFile)) {
-        currentJsonFile = datasetsList[0].file;
-      }
-
-      jsonSelectEl.value = currentJsonFile;
+    function resetDeck() {
+      state.deck = state.data.map(item => ({ ...item }));
+      state.index = 0;
+      state.flipped = false;
+      state.notification = "";
+      state.activeAction = "";
+      triggerCardRefreshAnimation();
+      render();
     }
 
-    async function loadDataset(file = currentJsonFile) {
-      const response = await fetch(`./${file}`, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`No s'ha pogut carregar ${file} (HTTP ${response.status}).`);
-      }
-      const json = await response.json();
-      dataset = sanitizeDataset(json);
-    }
-
-    async function applyJsonSelection(resetProgress = false) {
-      currentJsonFile = jsonSelectEl.value;
-      saveSettings();
-
-      const meta = currentDatasetMeta();
-      showFeedback(`Carregant ${meta?.label || currentJsonFile}...`, "info");
-
+    async function loadDatasets() {
+      datasetError.classList.add("hidden");
       try {
-        await loadDataset(currentJsonFile);
-        loadState();
-        ensureMapsIntegrity();
-
-        if (!game.foundMap.length || game.foundMap.length !== dataset.length || resetProgress) {
-          game = createEmptyGame();
-          game.examMode = modeSelectEl.value === "exam";
-          buildMaps();
-        }
-
-        if (game.currentIndex >= dataset.length) {
-          game.currentIndex = 0;
-        }
-
-        modeSelectEl.value = game.examMode ? "exam" : "training";
-        saveState();
-        render();
-      } catch (error) {
-        dataset = [];
-        game = createEmptyGame();
-        sentenceSourceEl.textContent = "";
-        showFeedback(`No s'ha pogut carregar ${currentJsonFile}. Revisa que el fitxer sigui a la mateixa carpeta que l'HTML.`, "error");
-        render();
+        const res = await fetch(DATASET_INDEX, { cache: "no-store" });
+        if (!res.ok) throw new Error("No s'ha pogut carregar datasets.json");
+        const datasets = await res.json();
+        state.datasets = Array.isArray(datasets) ? datasets : [];
+      } catch (err) {
+        state.datasets = [{ name: "Glosari", file: "glosari.json" }];
+        datasetError.textContent = "No s'ha pogut llegir datasets.json. S'usa glosari.json com a alternativa.";
+        datasetError.classList.remove("hidden");
       }
+
+      state.datasets.sort((a, b) => (a.name || "").localeCompare(b.name || "", "ca"));
+      datasetSelect.innerHTML = "";
+      state.datasets.forEach(ds => {
+        const opt = document.createElement("option");
+        opt.value = ds.file;
+        opt.textContent = ds.name;
+        datasetSelect.appendChild(opt);
+      });
+
+      const saved = loadSavedState();
+      const preferred = saved.lastDataset && state.datasets.some(ds => ds.file === saved.lastDataset)
+        ? saved.lastDataset
+        : (state.datasets[0]?.file || "");
+
+      datasetSelect.value = preferred;
+      if (preferred) await loadDataset(preferred);
     }
 
-    async function init() {
-      loadSettings();
-
+    async function loadDataset(file) {
+      state.datasetFile = file;
+      datasetError.classList.add("hidden");
       try {
-        await loadDatasetsList();
-        await applyJsonSelection(false);
-      } catch (error) {
-        dataset = [];
-        datasetsList = [];
-        jsonSelectEl.innerHTML = '<option value="">Error carregant datasets</option>';
-        showFeedback("No s'ha pogut carregar datasets.json. Posa'l a la mateixa carpeta que l'HTML.", "error");
-        render();
-      }
-    }
-
-    $("checkBtn").addEventListener("click", checkSentence);
-    $("showAnswerBtn").addEventListener("click", revealAnswer);
-    $("nextBtn").addEventListener("click", goNext);
-
-    $("resetBtn").addEventListener("click", () => {
-      const ok = window.confirm("Vols reiniciar aquesta partida?");
-      if (ok) resetGame();
-    });
-
-    $("closeModalBtn").addEventListener("click", closeResultModal);
-
-    $("playAgainBtn").addEventListener("click", () => {
-      closeResultModal();
-      resetGame();
-    });
-
-    modeSelectEl.addEventListener("change", (e) => {
-      changeMode(e.target.value);
-    });
-
-    jsonSelectEl.addEventListener("change", () => {
-      applyJsonSelection(true);
-    });
-
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        if (!resultModalEl.classList.contains("hidden")) {
-          closeResultModal();
+        const res = await fetch(file, { cache: "no-store" });
+        if (!res.ok) throw new Error(`No s'ha pogut carregar ${file}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("El JSON no té format de llista");
+        state.data = data.map(item => ({ ...item }));
+        const saved = loadSavedState()[file];
+        if (saved && Array.isArray(saved.deck) && saved.deck.length <= state.data.length) {
+          state.deck = saved.deck.map(item => ({ ...item }));
+          state.index = Math.min(saved.index || 0, Math.max(0, state.deck.length - 1));
+          state.flipped = !!saved.flipped;
         } else {
-          checkSentence();
+          state.deck = state.data.map(item => ({ ...item }));
+          state.index = 0;
+          state.flipped = false;
         }
+        state.notification = "";
+        state.activeAction = "";
+        triggerCardRefreshAnimation();
+        render();
+      } catch (err) {
+        state.data = [];
+        state.deck = [];
+        state.index = 0;
+        state.flipped = false;
+        datasetError.textContent = `${err.message}. Revisa que el fitxer existeixi i sigui a la mateixa carpeta.`;
+        datasetError.classList.remove("hidden");
+        render();
       }
+    }
 
-      if (e.key === "ArrowRight") {
-        goNext();
-      }
+    function getClientX(evt) {
+      if (evt.touches && evt.touches[0]) return evt.touches[0].clientX;
+      if (evt.changedTouches && evt.changedTouches[0]) return evt.changedTouches[0].clientX;
+      return evt.clientX;
+    }
+
+    function onPointerStart(evt) {
+      state.dragStartX = getClientX(evt);
+      state.dragCurrentX = state.dragStartX;
+    }
+
+    function onPointerMove(evt) {
+      if (state.dragStartX == null) return;
+      state.dragCurrentX = getClientX(evt);
+    }
+
+    function onPointerEnd(evt) {
+      if (state.dragStartX == null) return;
+      const endX = getClientX(evt);
+      const deltaX = endX - state.dragStartX;
+      state.dragStartX = null;
+      state.dragCurrentX = null;
+      if (Math.abs(deltaX) < 60) return;
+      if (deltaX < 0) nextCard();
+      else prevCard();
+    }
+
+    card.addEventListener("click", (evt) => {
+      if (evt.target.closest("button")) return;
+      flipCard();
     });
 
-    init();
+    ["favoriteFront", "favoriteBack"].forEach(id => {
+      document.getElementById(id).addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        favoriteCard();
+      });
+    });
+
+    ["learnFront", "learnBack"].forEach(id => {
+      document.getElementById(id).addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        learnCard();
+      });
+    });
+
+    document.getElementById("shuffleBtn").addEventListener("click", shuffleDeck);
+    document.getElementById("resetBtn").addEventListener("click", resetDeck);
+
+    datasetSelect.addEventListener("change", (evt) => {
+      loadDataset(evt.target.value);
+    });
+
+    const pointerTarget = document.querySelector(".card-shell");
+    pointerTarget.addEventListener("touchstart", onPointerStart, { passive: true });
+    pointerTarget.addEventListener("touchmove", onPointerMove, { passive: true });
+    pointerTarget.addEventListener("touchend", onPointerEnd, { passive: true });
+    pointerTarget.addEventListener("mousedown", onPointerStart);
+    pointerTarget.addEventListener("mousemove", onPointerMove);
+    pointerTarget.addEventListener("mouseup", onPointerEnd);
+    pointerTarget.addEventListener("mouseleave", onPointerEnd);
+
+    document.addEventListener("keydown", (evt) => {
+      const activeTag = document.activeElement && document.activeElement.tagName;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(activeTag)) return;
+      if (evt.key === "ArrowRight") { evt.preventDefault(); nextCard(); }
+      else if (evt.key === "ArrowLeft") { evt.preventDefault(); prevCard(); }
+      else if (evt.key === " " || evt.code === "Space") { evt.preventDefault(); flipCard(); }
+      else if (evt.key.toLowerCase() === "f") { evt.preventDefault(); favoriteCard(); }
+      else if (evt.key.toLowerCase() === "a") { evt.preventDefault(); learnCard(); }
+    });
+
+    loadDatasets();
   </script>
 </body>
 </html>
